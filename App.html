@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Grand Tournament: A Monster Hunter's Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <!--
+    Infographic Plan:
+    1. Narrative Structure:
+        - Hook: Epic introduction to the tournament.
+        - The Combatants: Analysis of the monster list (point distribution by CR, example tiers).
+        - The Gauntlet: Analysis of the modifier system (multiplier distribution).
+        - The Calculus of Courage: A visual breakdown of the scoring formula and an interactive calculator.
+        - Strategic Insights: Comparative analysis of different challenge types.
+        - Reference Tables: Searchable lists for all monsters and modifiers.
+    2. Visualization Choices (NO SVG, NO Mermaid JS Confirmed):
+        - Monster Points vs. CR: Chart.js Line Chart (Canvas). Justification: Best for showing trends.
+        - Modifier Multiplier Distribution: Chart.js Bar Chart/Histogram (Canvas). Justification: Best for showing frequency distribution.
+        - Scoring Formula: HTML/CSS Flexbox Flowchart. Justification: Clear, non-SVG diagram.
+        - Strategic Comparison: Chart.js Grouped Bar Chart (Canvas). Justification: Ideal for comparing components of different scenarios.
+        - Data Tables: Standard HTML tables with JavaScript for search/filtering. Justification: Optimal for large, sortable datasets.
+    3. Color Palette: "Energetic & Playful" selected for a vibrant, high-fantasy theme.
+    -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #34495E;
+            color: #ECF0F1;
+        }
+        h1, h2, h3 {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .card {
+            background-color: rgba(13, 13, 13, 0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(236, 240, 241, 0.1);
+        }
+        .flow-step {
+            background-color: #34495E;
+            border: 2px solid #F1C40F;
+            color: #ECF0F1;
+        }
+        .flow-connector {
+            font-size: 2.5rem;
+            color: #F1C40F;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #34495E; }
+        ::-webkit-scrollbar-thumb { background: #F1C40F; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #E74C3C; }
+    </style>
+</head>
+<body class="antialiased">
+
+
+    <header class="text-center p-8 md:p-12 bg-gray-900/50">
+        <h1 class="text-4xl md:text-6xl text-amber-300">The Grand Tournament</h1>
+        <p class="text-xl md:text-2xl mt-2 text-slate-300">A Monster Hunter's Guide to Glory</p>
+    </header>
+
+
+    <main class="container mx-auto p-4 md:p-8">
+       
+        <section id="intro" class="text-center mb-12">
+            <h2 class="text-3xl mb-4 text-red-500">Welcome, Champions!</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-300">Within this guide lies the knowledge to carve your legend. You will face fearsome beasts in arenas designed to their advantage. You will choose your challenge, add perilous modifiers, and fight for points. Understand the data, master the formula, and victory shall be yours. Fortune favors the bold... and the well-prepared.</p>
+        </section>
+
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <div class="card rounded-lg p-6 text-center lg:col-span-1">
+                <h3 class="text-2xl text-green-400">Low Tier Threat</h3>
+                <p class="text-6xl font-bold my-4">50</p>
+                <p class="text-xl font-bold">Goblin</p>
+                <p class="text-sm text-slate-400">A numerous and cowardly foe, dangerous in large groups. A test of crowd control.</p>
+            </div>
+            <div class="card rounded-lg p-6 text-center lg:col-span-1">
+                <h3 class="text-2xl text-amber-400">Mid Tier Challenge</h3>
+                <p class="text-6xl font-bold my-4">1,800</p>
+                <p class="text-xl font-bold">Troll</p>
+                <p class="text-sm text-slate-400">Infamous for its regeneration. Requires specialized tactics to put down for good.</p>
+            </div>
+            <div class="card rounded-lg p-6 text-center lg:col-span-1 md:col-span-2">
+                <h3 class="text-2xl text-red-500">High Tier Apex</h3>
+                <p class="text-6xl font-bold my-4">18,000</p>
+                <p class="text-xl font-bold">Adult Red Dragon</p>
+                <p class="text-sm text-slate-400">The epitome of draconic might and fiery destruction. A battle for the ages.</p>
+            </div>
+        </div>
+
+
+        <section id="monsters" class="mb-12 card rounded-lg p-6">
+            <h2 class="text-3xl text-center mb-4 text-red-500">The Combatants: Points by Challenge</h2>
+            <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6">A monster's Point Value grows exponentially with its Challenge Rating (CR). Early gains are small, but the power of high-CR creatures skyrockets, offering immense rewards for those who can defeat them.</p>
+            <div class="chart-container">
+                <canvas id="monsterPointsChart"></canvas>
+            </div>
+        </section>
+
+
+        <section id="modifiers" class="mb-12 card rounded-lg p-6">
+            <h2 class="text-3xl text-center mb-4 text-red-500">The Gauntlet: Modifier Distribution</h2>
+            <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6">Modifiers increase the challenge for a greater point multiplier. Most offer a modest boost, but some legendary modifiers can dramatically alter the fight and the potential reward.</p>
+            <div class="chart-container">
+                <canvas id="modifierMultiplierChart"></canvas>
+            </div>
+        </section>
+       
+        <section id="formula" class="mb-12 card rounded-lg p-6">
+            <h2 class="text-3xl text-center mb-4 text-red-500">The Calculus of Courage</h2>
+            <p class="text-center max-w-2xl mx-auto text-slate-300 mb-8">Your final score is determined by this sacred formula. Each component is a choice, a risk, a path to glory or ruin.</p>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 text-center flex-wrap">
+                <div class="flow-step rounded-lg p-4">Monster Points &times; # of Monsters &times; Modifier</div>
+                <div class="flow-connector">÷</div>
+                <div class="flow-step rounded-lg p-4"># of Players &times; 1.1</div>
+                <div class="flow-connector">=</div>
+                <div class="flow-step rounded-lg p-4 bg-green-600 border-green-400">Total Points</div>
+            </div>
+
+
+            <div id="calculator" class="mt-12">
+                <h3 class="text-2xl text-center mb-6 text-amber-300">Strategize Your Encounter</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-lg bg-gray-900/50">
+                    <div>
+                        <label for="monsterSelect" class="block mb-2 text-sm font-medium text-slate-300">Choose a Monster:</label>
+                        <select id="monsterSelect" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5"></select>
+                    </div>
+                    <div>
+                        <label for="monsterCount" class="block mb-2 text-sm font-medium text-slate-300">Number of Monsters:</label>
+                        <input type="number" id="monsterCount" value="1" min="1" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5">
+                    </div>
+                    <div>
+                        <label for="modifierSelect" class="block mb-2 text-sm font-medium text-slate-300">Choose a Modifier:</label>
+                        <select id="modifierSelect" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5"></select>
+                    </div>
+                    <div>
+                        <label for="playerCount" class="block mb-2 text-sm font-medium text-slate-300">Number of Players:</label>
+                        <input type="number" id="playerCount" value="4" min="1" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5">
+                    </div>
+                </div>
+                <div class="mt-6 p-6 bg-gray-900 rounded-lg text-center">
+                    <h4 class="text-lg text-slate-400">Potential Score</h4>
+                    <p id="totalPointsResult" class="text-5xl font-bold text-green-400">0</p>
+                </div>
+            </div>
+        </section>
+
+
+        <section id="strategy" class="mb-12 card rounded-lg p-6">
+            <h2 class="text-3xl text-center mb-4 text-red-500">Strategic Insights</h2>
+            <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6">Consider two paths to a 20,000 point base value: an army of 400 Goblins, or a single mighty Beholder. While the base value is similar, the nature of the challenge is vastly different. How will a modifier like "Multi-Attack" (x1.5) affect each scenario?</p>
+            <div class="chart-container">
+                <canvas id="strategyChart"></canvas>
+            </div>
+        </section>
+
+
+        <section id="monster-reference" class="mb-12 card rounded-lg p-6">
+            <h2 class="text-3xl text-center mb-4 text-red-500">Monster Reference</h2>
+            <input type="text" id="monsterSearch" placeholder="Search for a monster..." class="w-full p-2 mb-4 bg-gray-700 border border-gray-600 rounded-lg text-white">
+            <div class="overflow-x-auto max-h-96">
+                <table class="w-full text-sm text-left text-gray-300">
+                    <thead class="text-xs text-amber-300 uppercase bg-gray-900/50 sticky top-0">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Monster</th>
+                            <th scope="col" class="px-6 py-3">CR</th>
+                            <th scope="col" class="px-6 py-3">Point Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monsterTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <section id="modifier-reference" class="mb-12 card rounded-lg p-6">
+            <h2 class="text-3xl text-center mb-4 text-red-500">Modifier Reference</h2>
+            <input type="text" id="modifierSearch" placeholder="Search for a modifier..." class="w-full p-2 mb-4 bg-gray-700 border border-gray-600 rounded-lg text-white">
+            <div class="overflow-x-auto max-h-96">
+                <table class="w-full text-sm text-left text-gray-300">
+                    <thead class="text-xs text-amber-300 uppercase bg-gray-900/50 sticky top-0">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Modifier</th>
+                            <th scope="col" class="px-6 py-3">Multiplier</th>
+                            <th scope="col" class="px-6 py-3">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modifierTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+   
+    <footer class="text-center p-4 bg-gray-900/50">
+        <p class="text-slate-400">May your blades be sharp and your spells true. Good luck, champions.</p>
+    </footer>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+
+    const monsterData = [
+        { name: "Rat", cr: "0", points: 10 }, { name: "Owl", cr: "0", points: 10 }, { name: "Stirge", cr: "1/8", points: 25 },
+        { name: "Kobold", cr: "1/8", points: 25 }, { name: "Goblin", cr: "1/4", points: 50 }, { name: "Wolf", cr: "1/4", points: 50 },
+        { name: "Acolyte", cr: "1/4", points: 50 }, { name: "Skeleton", cr: "1/4", points: 50 }, { name: "Zombie", cr: "1/4", points: 50 },
+        { name: "Orc", cr: "1/2", points: 100 }, { name: "Shadow", cr: "1/2", points: 100 }, { name: "Warhorse", cr: "1/2", points: 100 },
+        { name: "Gnoll", cr: "1/2", points: 100 }, { name: "Bear (Black)", cr: "1/2", points: 100 }, { name: "Bugbear", cr: "1", points: 200 },
+        { name: "Ghoul", cr: "1", points: 200 }, { name: "Harpy", cr: "1", points: 200 }, { name: "Imp", cr: "1", points: 200 },
+        { name: "Quasit", cr: "1", points: 200 }, { name: "Specter", cr: "1", points: 200 }, { name: "Dire Wolf", cr: "1", points: 200 },
+        { name: "Giant Spider", cr: "1", points: 200 }, { name: "Ogre", cr: "2", points: 450 }, { name: "Ghast", cr: "2", points: 450 },
+        { name: "Minotaur Skeleton", cr: "2", points: 450 }, { name: "Gelatinous Cube", cr: "2", points: 450 }, { name: "Grick", cr: "2", points: 450 },
+        { name: "Ettercap", cr: "2", points: 450 }, { name: "Wight", cr: "3", points: 700 }, { name: "Veteran", cr: "3", points: 700 },
+        { name: "Owlbear", cr: "3", points: 700 }, { name: "Manticore", cr: "3", points: 700 }, { name: "Hell Hound", cr: "3", points: 700 },
+        { name: "Doppelganger", cr: "3", points: 700 }, { name: "Ettin", cr: "4", points: 1100 }, { name: "Ghost", cr: "4", points: 1100 },
+        { name: "Lamia", cr: "4", points: 1100 }, { name: "Redcap", cr: "4", points: 1100 }, { name: "Succubus/Incubus", cr: "4", points: 1100 },
+        { name: "Troll", cr: "5", points: 1800 }, { name: "Hill Giant", cr: "5", points: 1800 }, { name: "Gladiator", cr: "5", points: 1800 },
+        { name: "Gorgon", cr: "5", points: 1800 }, { name: "Umber Hulk", cr: "5", points: 1800 }, { name: "Vampire Spawn", cr: "5", points: 1800 },
+        { name: "Wraith", cr: "5", points: 1800 }, { name: "Wyvern", cr: "6", points: 2300 }, { name: "Cyclops", cr: "6", points: 2300 },
+        { name: "Galeb Duhr", cr: "6", points: 2300 }, { name: "Medusa", cr: "6", points: 2300 }, { name: "Young White Dragon", cr: "6", points: 2300 },
+        { name: "Stone Giant", cr: "7", points: 2900 }, { name: "Oni", cr: "7", points: 2900 }, { name: "Shield Guardian", cr: "7", points: 2900 },
+        { name: "Young Black Dragon", cr: "7", points: 2900 }, { name: "Frost Giant", cr: "8", points: 3900 }, { name: "Cloaker", cr: "8", points: 3900 },
+        { name: "Fomorian", cr: "8", points: 3900 }, { name: "Spirit Naga", cr: "8", points: 3900 }, { name: "Young Green Dragon", cr: "8", points: 3900 },
+        { name: "Fire Giant", cr: "9", points: 5000 }, { name: "Clay Golem", cr: "9", points: 5000 }, { name: "Cloud Giant", cr: "9", points: 5000 },
+        { name: "Treant", cr: "9", points: 5000 }, { name: "Young Blue Dragon", cr: "9", points: 5000 }, { name: "Aboleth", cr: "10", points: 5900 },
+        { name: "Deva", cr: "10", points: 5900 }, { name: "Guardian Naga", cr: "10", points: 5900 }, { name: "Stone Golem", cr: "10", points: 5900 },
+        { name: "Young Red Dragon", cr: "10", points: 5900 }, { name: "Behir", cr: "11", points: 7200 }, { name: "Efreeti", cr: "11", points: 7200 },
+        { name: "Gynosphinx", cr: "11", points: 7200 }, { name: "Horned Devil", cr: "11", points: 7200 }, { name: "Remorhaz", cr: "11", points: 7200 },
+        { name: "Roc", cr: "11", points: 7200 }, { name: "Erinyes", cr: "12", points: 8400 }, { name: "Archmage", cr: "12", points: 8400 },
+        { name: "Bone Devil", cr: "12", points: 8400 }, { name: "Adult White Dragon", cr: "13", points: 10000 }, { name: "Beholder", cr: "13", points: 10000 },
+        { name: "Storm Giant", cr: "13", points: 10000 }, { name: "Vampire", cr: "13", points: 10000 }, { name: "Adult Black Dragon", cr: "14", points: 11500 },
+        { name: "Ice Devil", cr: "14", points: 11500 }, { name: "Death Tyrant", cr: "14", points: 11500 }, { name: "Adult Green Dragon", cr: "15", points: 13000 },
+        { name: "Mummy Lord", cr: "15", points: 13000 }, { name: "Purple Worm", cr: "15", points: 13000 },
+        { name: "Adult Copper Dragon (Reflective Hide)", cr: "16", points: 15000 }, { name: "Iron Golem", cr: "16", points: 15000 },
+        { name: "Planetar", cr: "16", points: 15000 }, { name: "Adult Blue Dragon", cr: "16", points: 15000 }, { name: "Adult Red Dragon", cr: "17", points: 18000 },
+        { name: "Androsphinx", cr: "17", points: 18000 }, { name: "Dragon Turtle", cr: "17", points: 18000 }, { name: "Death Knight", cr: "17", points: 18000 },
+        { name: "Balor", cr: "19", points: 22000 }, { name: "Pit Fiend", cr: "20", points: 25000 }, { name: "Ancient Brass Dragon", cr: "20", points: 25000 },
+        { name: "Lich", cr: "21", points: 33000 }, { name: "Solar", cr: "21", points: 33000 }, { name: "Ancient White Dragon", cr: "20", points: 25000 },
+        { name: "Ancient Black Dragon", cr: "21", points: 33000 }, { name: "Ancient Green Dragon", cr: "22", points: 41000 },
+        { name: "Ancient Blue Dragon", cr: "23", points: 50000 }, { name: "Ancient Red Dragon", cr: "24", points: 62000 }, { name: "Tarrasque", cr: "30", points: 155000 }
+    ].sort((a, b) => a.points - b.points);
+
+
+    const modifierData = [
+        { name: "No Modifier", multiplier: 1.0, description: "A standard engagement." },
+        { name: "Thick-Skinned", multiplier: 1.1, description: "Monsters have +1 AC." },
+        { name: "Vicious", multiplier: 1.1, description: "Monsters deal 1 extra point of damage on all attacks." },
+        { name: "Pack Tactics", multiplier: 1.2, description: "Advantage on attacks when an ally is within 5ft of the target." },
+        { name: "Arcane-Infused", multiplier: 1.2, description: "Attacks are magical." },
+        { name: "Bloodthirsty", multiplier: 1.25, description: "Deal an extra die of damage against creatures below half health." },
+        { name: "Caustic Blood", multiplier: 1.3, description: "Melee attackers take 1d4 acid damage." },
+        { name: "Spell-Resistant", multiplier: 1.3, description: "Advantage on saving throws against spells." },
+        { name: "Paralyzing Strike", multiplier: 1.4, description: "Once per combat, an attack can force a save against paralysis." },
+        { name: "Reflective Carapace", multiplier: 1.4, description: "Chance to reflect single-target spells." },
+        { name: "Multi-Attack", multiplier: 1.5, description: "Gain one additional attack with their primary weapon." },
+        { name: "Regenerating", multiplier: 1.5, description: "Regenerate 10% of max HP at the start of their turn." },
+        { name: "Evasive", multiplier: 1.6, description: "Take half damage on failed Dex saves, and no damage on success." },
+        { name: "Legendary Resistance (1/Day)", multiplier: 1.6, description: "If the monster fails a saving throw, it can choose to succeed instead (1/Day)." },
+        { name: "Hive Mind", multiplier: 1.7, description: "All monsters are telepathically linked." },
+        { name: "Mirage", multiplier: 1.75, description: "Surrounded by illusory duplicates (mirror image)." },
+        { name: "Reactive", multiplier: 1.8, description: "Can take one reaction on every turn in a combat." },
+        { name: "Adaptive Resistance", multiplier: 1.85, description: "Gains resistance to the first type of damage it takes." },
+        { name: "Incorporeal", multiplier: 1.9, description: "Resistant to non-magical physical damage and can move through objects." },
+        { name: "Mythic Trait", multiplier: 2, description: "When reduced to 0 HP, regains full health and gains a new ability." },
+        { name: "Legendary Actions", multiplier: 2, description: "Gains 1 legendary action per round." },
+        { name: "Aura of Madness", multiplier: 2.1, description: "Creatures nearby must save or suffer from short-term madness." },
+        { name: "Summoner", multiplier: 2.3, description: "Can summon lesser creatures to aid it in battle." },
+        { name: "Aura of Antimagic", multiplier: 2.4, description: "All magic is suppressed in a 30-foot radius." },
+        { name: "Legendary Resistance (2/Day)", multiplier: 2.5, description: "Can choose to succeed a failed saving throw (2/Day)." },
+        { name: "Action-Oriented", multiplier: 2.75, description: "Has special 'villain actions' that trigger at different initiative counts." },
+        { name: "Legendary Actions (2/Day)", multiplier: 3, description: "Gains 2 legendary actions per round." },
+        { name: "Primordial", multiplier: 3.2, description: "Attacks ignore all resistances." },
+        { name: "Spell-Eater", multiplier: 3.5, description: "Immune to magic and heals from spells cast upon it." },
+        { name: "Aspect of the Tarrasque", multiplier: 4, description: "Reflective carapace, immune to non-magical weapons, 3 legendary resistances." },
+        { name: "Unkillable", multiplier: 4.5, description: "Cannot be reduced below 1 HP unless a specific, hidden condition is met." },
+        { name: "True Form", multiplier: 5, description: "When defeated, reveals its true, much more powerful form." },
+        { name: "The Final Boss", multiplier: 6, description: "Has Mythic Actions, 3 Legendary Actions, and Legendary Resistance (3/Day)." },
+        { name: "Player Nemesis", multiplier: 7, description: "Has abilities, spells, and tactics designed to counter the party." }
+    ].sort((a, b) => a.multiplier - b.multiplier);
+
+
+    const crToNumeric = (cr) => {
+        if (cr.includes('/')) {
+            const parts = cr.split('/');
+            return parseFloat(parts[0]) / parseFloat(parts[1]);
+        }
+        return parseFloat(cr);
+    };
+   
+    const tooltipCallback = {
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    title: function(tooltipItems) {
+                        const item = tooltipItems[0];
+                        let label = item.chart.data.labels[item.dataIndex];
+                        return Array.isArray(label) ? label.join(' ') : label;
+                    }
+                }
+            },
+            legend: {
+                labels: {
+                    color: '#ECF0F1'
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { color: '#ECF0F1' },
+                grid: { color: 'rgba(236, 240, 241, 0.1)' }
+            },
+            x: {
+                ticks: { color: '#ECF0F1' },
+                grid: { color: 'rgba(236, 240, 241, 0.1)' }
+            }
+        },
+        maintainAspectRatio: false
+    };
+
+
+    const wrapLabel = (label, maxLength = 16) => {
+        if (label.length <= maxLength) return label;
+        const words = label.split(' ');
+        const lines = [];
+        let currentLine = '';
+        for (const word of words) {
+            if ((currentLine + word).length > maxLength) {
+                lines.push(currentLine.trim());
+                currentLine = '';
+            }
+            currentLine += word + ' ';
+        }
+        lines.push(currentLine.trim());
+        return lines;
+    };
+   
+    new Chart(document.getElementById('monsterPointsChart'), {
+        type: 'line',
+        data: {
+            labels: monsterData.map(m => `CR ${m.cr}`),
+            datasets: [{
+                label: 'Point Value',
+                data: monsterData.map(m => m.points),
+                borderColor: '#F1C40F',
+                backgroundColor: 'rgba(241, 196, 15, 0.2)',
+                tension: 0.1,
+                fill: true
+            }]
+        },
+        options: { ...tooltipCallback, scales: { ...tooltipCallback.scales, y: { ...tooltipCallback.scales.y, type: 'logarithmic' } } }
+    });
+
+
+    const modifierBins = modifierData.reduce((acc, mod) => {
+        const bin = Math.floor(mod.multiplier * 2) / 2;
+        const label = `${bin.toFixed(1)}-${(bin + 0.5).toFixed(1)}`;
+        if (!acc[label]) {
+            acc[label] = 0;
+        }
+        acc[label]++;
+        return acc;
+    }, {});
+
+
+    new Chart(document.getElementById('modifierMultiplierChart'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(modifierBins),
+            datasets: [{
+                label: 'Number of Modifiers',
+                data: Object.values(modifierBins),
+                backgroundColor: '#2ECC71',
+                borderColor: '#27AE60',
+                borderWidth: 1
+            }]
+        },
+        options: tooltipCallback
+    });
+
+
+    new Chart(document.getElementById('strategyChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Base Points', 'Modified Points (x1.5)'],
+            datasets: [
+                {
+                    label: '400 Goblins (20k pts)',
+                    data: [20000, 30000],
+                    backgroundColor: '#E74C3C',
+                },
+                {
+                    label: '2 Beholders (20k pts)',
+                    data: [20000, 30000],
+                    backgroundColor: '#3498DB',
+                }
+            ]
+        },
+        options: tooltipCallback
+    });
+
+
+    const monsterTableBody = document.getElementById('monsterTableBody');
+    const monsterSearch = document.getElementById('monsterSearch');
+    const modifierTableBody = document.getElementById('modifierTableBody');
+    const modifierSearch = document.getElementById('modifierSearch');
+
+
+    function populateTable(tableBody, data, renderFn) {
+        tableBody.innerHTML = '';
+        data.forEach(item => {
+            tableBody.appendChild(renderFn(item));
+        });
+    }
+
+
+    function renderMonsterRow(monster) {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-700 hover:bg-gray-800/50';
+        row.innerHTML = `<td class="px-6 py-4">${monster.name}</td><td class="px-6 py-4">${monster.cr}</td><td class="px-6 py-4">${monster.points.toLocaleString()}</td>`;
+        return row;
+    }
+
+
+    function renderModifierRow(modifier) {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-700 hover:bg-gray-800/50';
+        row.innerHTML = `<td class="px-6 py-4">${modifier.name}</td><td class="px-6 py-4">x${modifier.multiplier}</td><td class="px-6 py-4">${modifier.description}</td>`;
+        return row;
+    }
+
+
+    populateTable(monsterTableBody, monsterData, renderMonsterRow);
+    populateTable(modifierTableBody, modifierData, renderModifierRow);
+   
+    monsterSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const filteredData = monsterData.filter(m => m.name.toLowerCase().includes(searchTerm));
+        populateTable(monsterTableBody, filteredData, renderMonsterRow);
+    });
+
+
+    modifierSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const filteredData = modifierData.filter(m => m.name.toLowerCase().includes(searchTerm) || m.description.toLowerCase().includes(searchTerm));
+        populateTable(modifierTableBody, filteredData, renderModifierRow);
+    });
+
+
+    const monsterSelect = document.getElementById('monsterSelect');
+    const modifierSelect = document.getElementById('modifierSelect');
+    const monsterCount = document.getElementById('monsterCount');
+    const playerCount = document.getElementById('playerCount');
+    const totalPointsResult = document.getElementById('totalPointsResult');
+
+
+    monsterData.forEach((monster, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${monster.name} (${monster.points} pts)`;
+        monsterSelect.appendChild(option);
+    });
+
+
+    modifierData.forEach((modifier, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${modifier.name} (x${modifier.multiplier})`;
+        modifierSelect.appendChild(option);
+    });
+
+
+    function calculateScore() {
+        const selectedMonster = monsterData[monsterSelect.value];
+        const selectedModifier = modifierData[modifierSelect.value];
+        const numMonsters = parseInt(monsterCount.value) || 1;
+        const numPlayers = parseInt(playerCount.value) || 1;
+
+
+        if (!selectedMonster || !selectedModifier || numMonsters < 1 || numPlayers < 1) {
+            totalPointsResult.textContent = 'Invalid Input';
+            return;
+        }
+
+
+        const totalPoints = (selectedMonster.points * numMonsters * selectedModifier.multiplier) / (numPlayers * 1.1);
+        totalPointsResult.textContent = Math.round(totalPoints).toLocaleString();
+    }
+
+
+    monsterSelect.addEventListener('change', calculateScore);
+    modifierSelect.addEventListener('change', calculateScore);
+    monsterCount.addEventListener('input', calculateScore);
+    playerCount.addEventListener('input', calculateScore);
+
+
+    calculateScore();
+});
+</script>
+</body>
+</html>
+
+
+
