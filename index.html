@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <!--
+    <!-- 
     Infographic Plan:
     1. Narrative Structure:
         - Hook: Epic introduction to the tournament.
@@ -69,24 +69,28 @@
         ::-webkit-scrollbar-track { background: #34495E; }
         ::-webkit-scrollbar-thumb { background: #F1C40F; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #E74C3C; }
+        select[multiple] option {
+            padding: 0.5rem;
+        }
+        select[multiple] option:checked {
+            background: #F1C40F;
+            color: #34495E;
+        }
     </style>
 </head>
 <body class="antialiased">
-
 
     <header class="text-center p-8 md:p-12 bg-gray-900/50">
         <h1 class="text-4xl md:text-6xl text-amber-300">The Grand Tournament</h1>
         <p class="text-xl md:text-2xl mt-2 text-slate-300">A Monster Hunter's Guide to Glory</p>
     </header>
 
-
     <main class="container mx-auto p-4 md:p-8">
-       
+        
         <section id="intro" class="text-center mb-12">
             <h2 class="text-3xl mb-4 text-red-500">Welcome, Champions!</h2>
             <p class="max-w-3xl mx-auto text-lg text-slate-300">Within this guide lies the knowledge to carve your legend. You will face fearsome beasts in arenas designed to their advantage. You will choose your challenge, add perilous modifiers, and fight for points. Understand the data, master the formula, and victory shall be yours. Fortune favors the bold... and the well-prepared.</p>
         </section>
-
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             <div class="card rounded-lg p-6 text-center lg:col-span-1">
@@ -109,7 +113,6 @@
             </div>
         </div>
 
-
         <section id="monsters" class="mb-12 card rounded-lg p-6">
             <h2 class="text-3xl text-center mb-4 text-red-500">The Combatants: Points by Challenge</h2>
             <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6">A monster's Point Value grows exponentially with its Challenge Rating (CR). Early gains are small, but the power of high-CR creatures skyrockets, offering immense rewards for those who can defeat them.</p>
@@ -118,7 +121,6 @@
             </div>
         </section>
 
-
         <section id="modifiers" class="mb-12 card rounded-lg p-6">
             <h2 class="text-3xl text-center mb-4 text-red-500">The Gauntlet: Modifier Distribution</h2>
             <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6">Modifiers increase the challenge for a greater point multiplier. Most offer a modest boost, but some legendary modifiers can dramatically alter the fight and the potential reward.</p>
@@ -126,18 +128,17 @@
                 <canvas id="modifierMultiplierChart"></canvas>
             </div>
         </section>
-       
+        
         <section id="formula" class="mb-12 card rounded-lg p-6">
             <h2 class="text-3xl text-center mb-4 text-red-500">The Calculus of Courage</h2>
             <p class="text-center max-w-2xl mx-auto text-slate-300 mb-8">Your final score is determined by this sacred formula. Each component is a choice, a risk, a path to glory or ruin.</p>
             <div class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 text-center flex-wrap">
-                <div class="flow-step rounded-lg p-4">Monster Points &times; # of Monsters &times; Modifier</div>
+                <div class="flow-step rounded-lg p-4">Monster Points &times; # of Monsters &times; Modifiers</div>
                 <div class="flow-connector">÷</div>
                 <div class="flow-step rounded-lg p-4"># of Players &times; 1.1</div>
                 <div class="flow-connector">=</div>
                 <div class="flow-step rounded-lg p-4 bg-green-600 border-green-400">Total Points</div>
             </div>
-
 
             <div id="calculator" class="mt-12">
                 <h3 class="text-2xl text-center mb-6 text-amber-300">Strategize Your Encounter</h3>
@@ -151,8 +152,9 @@
                         <input type="number" id="monsterCount" value="1" min="1" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5">
                     </div>
                     <div>
-                        <label for="modifierSelect" class="block mb-2 text-sm font-medium text-slate-300">Choose a Modifier:</label>
-                        <select id="modifierSelect" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5"></select>
+                        <label for="modifierSelect" class="block mb-2 text-sm font-medium text-slate-300">Choose Modifiers:</label>
+                        <p class="text-xs text-slate-400 mb-1">Hold Ctrl/Cmd to select multiple.</p>
+                        <select id="modifierSelect" multiple size="5" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5"></select>
                     </div>
                     <div>
                         <label for="playerCount" class="block mb-2 text-sm font-medium text-slate-300">Number of Players:</label>
@@ -166,15 +168,13 @@
             </div>
         </section>
 
-
         <section id="strategy" class="mb-12 card rounded-lg p-6">
             <h2 class="text-3xl text-center mb-4 text-red-500">Strategic Insights</h2>
-            <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6">Consider two paths to a 20,000 point base value: an army of 400 Goblins, or a single mighty Beholder. While the base value is similar, the nature of the challenge is vastly different. How will a modifier like "Multi-Attack" (x1.5) affect each scenario?</p>
+            <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6">Consider two paths to a 20,000 point base value: an army of 400 Goblins, or two mighty Beholders. While the base value is similar, the nature of the challenge is vastly different. How will a modifier like "Multi-Attack" (x1.5) affect each scenario?</p>
             <div class="chart-container">
                 <canvas id="strategyChart"></canvas>
             </div>
         </section>
-
 
         <section id="monster-reference" class="mb-12 card rounded-lg p-6">
             <h2 class="text-3xl text-center mb-4 text-red-500">Monster Reference</h2>
@@ -194,7 +194,6 @@
             </div>
         </section>
 
-
         <section id="modifier-reference" class="mb-12 card rounded-lg p-6">
             <h2 class="text-3xl text-center mb-4 text-red-500">Modifier Reference</h2>
             <input type="text" id="modifierSearch" placeholder="Search for a modifier..." class="w-full p-2 mb-4 bg-gray-700 border border-gray-600 rounded-lg text-white">
@@ -213,18 +212,16 @@
             </div>
         </section>
     </main>
-   
+    
     <footer class="text-center p-4 bg-gray-900/50">
         <p class="text-slate-400">May your blades be sharp and your spells true. Good luck, champions.</p>
     </footer>
 
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-
     const monsterData = [
-        { name: "Rat", cr: "0", points: 10 }, { name: "Owl", cr: "0", points: 10 }, { name: "Stirge", cr: "1/8", points: 25 },
+        { name: "Rat", cr: "0", points: 10 }, { name: "Owl", cr: "0", points: 10 }, { name: "Stirge", cr: "1/8", points: 25 }, 
         { name: "Kobold", cr: "1/8", points: 25 }, { name: "Goblin", cr: "1/4", points: 50 }, { name: "Wolf", cr: "1/4", points: 50 },
         { name: "Acolyte", cr: "1/4", points: 50 }, { name: "Skeleton", cr: "1/4", points: 50 }, { name: "Zombie", cr: "1/4", points: 50 },
         { name: "Orc", cr: "1/2", points: 100 }, { name: "Shadow", cr: "1/2", points: 100 }, { name: "Warhorse", cr: "1/2", points: 100 },
@@ -253,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Bone Devil", cr: "12", points: 8400 }, { name: "Adult White Dragon", cr: "13", points: 10000 }, { name: "Beholder", cr: "13", points: 10000 },
         { name: "Storm Giant", cr: "13", points: 10000 }, { name: "Vampire", cr: "13", points: 10000 }, { name: "Adult Black Dragon", cr: "14", points: 11500 },
         { name: "Ice Devil", cr: "14", points: 11500 }, { name: "Death Tyrant", cr: "14", points: 11500 }, { name: "Adult Green Dragon", cr: "15", points: 13000 },
-        { name: "Mummy Lord", cr: "15", points: 13000 }, { name: "Purple Worm", cr: "15", points: 13000 },
+        { name: "Mummy Lord", cr: "15", points: 13000 }, { name: "Purple Worm", cr: "15", points: 13000 }, 
         { name: "Adult Copper Dragon (Reflective Hide)", cr: "16", points: 15000 }, { name: "Iron Golem", cr: "16", points: 15000 },
         { name: "Planetar", cr: "16", points: 15000 }, { name: "Adult Blue Dragon", cr: "16", points: 15000 }, { name: "Adult Red Dragon", cr: "17", points: 18000 },
         { name: "Androsphinx", cr: "17", points: 18000 }, { name: "Dragon Turtle", cr: "17", points: 18000 }, { name: "Death Knight", cr: "17", points: 18000 },
@@ -263,44 +260,108 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Ancient Blue Dragon", cr: "23", points: 50000 }, { name: "Ancient Red Dragon", cr: "24", points: 62000 }, { name: "Tarrasque", cr: "30", points: 155000 }
     ].sort((a, b) => a.points - b.points);
 
-
     const modifierData = [
-        { name: "No Modifier", multiplier: 1.0, description: "A standard engagement." },
         { name: "Thick-Skinned", multiplier: 1.1, description: "Monsters have +1 AC." },
         { name: "Vicious", multiplier: 1.1, description: "Monsters deal 1 extra point of damage on all attacks." },
+        { name: "Tenacious", multiplier: 1.1, description: "Monsters have 10% more hit points." },
+        { name: "Sure-Footed", multiplier: 1.1, description: "Monsters have advantage on saves against being knocked prone." },
+        { name: "Keen-Eyed", multiplier: 1.1, description: "Monsters have advantage on Perception checks." },
+        { name: "Frenzied", multiplier: 1.15, description: "Monsters have advantage on their first attack roll in combat." },
+        { name: "Toughened", multiplier: 1.15, description: "Monsters are resistant to poison damage." },
+        { name: "Chilling Aura", multiplier: 1.15, description: "The area around the monsters is unnaturally cold, disadvantage on checks to resist cold effects." },
         { name: "Pack Tactics", multiplier: 1.2, description: "Advantage on attacks when an ally is within 5ft of the target." },
         { name: "Arcane-Infused", multiplier: 1.2, description: "Attacks are magical." },
+        { name: "Fast Healing", multiplier: 1.2, description: "Monsters regenerate 1 hit point at the start of their turn." },
+        { name: "Slippery", multiplier: 1.2, description: "Monsters have advantage on saves to escape grapples or restraints." },
+        { name: "Hulking", multiplier: 1.2, description: "Monsters are one size category larger." },
         { name: "Bloodthirsty", multiplier: 1.25, description: "Deal an extra die of damage against creatures below half health." },
+        { name: "Resilient", multiplier: 1.25, description: "Monsters have proficiency in one additional saving throw." },
+        { name: "Shielded", multiplier: 1.25, description: "Monsters begin combat with temporary hit points equal to 10% of their maximum." },
+        { name: "Ambusher", multiplier: 1.25, description: "Monsters have advantage on attack rolls against any creature they have surprised." },
         { name: "Caustic Blood", multiplier: 1.3, description: "Melee attackers take 1d4 acid damage." },
         { name: "Spell-Resistant", multiplier: 1.3, description: "Advantage on saving throws against spells." },
+        { name: "Unrelenting", multiplier: 1.3, description: "If the monster is reduced to 0 HP, it makes one final melee attack before dying." },
+        { name: "Fearsome", multiplier: 1.3, description: "Creatures starting their turn near the monster must save or become frightened." },
+        { name: "Vampiric Touch", multiplier: 1.35, description: "Monsters heal for half the damage they deal once per combat." },
+        { name: "Explosive Demise", multiplier: 1.35, description: "When a monster dies, it explodes in a burst of elemental energy (fire, cold, etc.)." },
         { name: "Paralyzing Strike", multiplier: 1.4, description: "Once per combat, an attack can force a save against paralysis." },
+        { name: "Phase-Touched", multiplier: 1.4, description: "Monsters can briefly become ethereal, ignoring difficult terrain and moving through objects." },
         { name: "Reflective Carapace", multiplier: 1.4, description: "Chance to reflect single-target spells." },
+        { name: "Splitter", multiplier: 1.45, description: "When a monster is brought below half health, it splits into two smaller versions with half the remaining HP." },
+        { name: "Gravity Well", multiplier: 1.45, description: "The area around the monsters is high gravity, costing double movement." },
         { name: "Multi-Attack", multiplier: 1.5, description: "Gain one additional attack with their primary weapon." },
+        { name: "Elemental Adept", multiplier: 1.5, description: "Monsters can change their damage type to an element of their choice (fire, cold, lightning)." },
         { name: "Regenerating", multiplier: 1.5, description: "Regenerate 10% of max HP at the start of their turn." },
+        { name: "Antimagic Cone", multiplier: 1.5, description: "One monster projects a cone of antimagic, nullifying spells within it." },
+        { name: "Teleporting", multiplier: 1.5, description: "Monsters can teleport a short distance as a bonus action." },
+        { name: "Charmed", multiplier: 1.5, description: "Monsters are immune to the charmed condition." },
+        { name: "Cunning Action", multiplier: 1.5, description: "Monsters can take a bonus action on each of their turns to Dash, Disengage, or Hide." },
         { name: "Evasive", multiplier: 1.6, description: "Take half damage on failed Dex saves, and no damage on success." },
         { name: "Legendary Resistance (1/Day)", multiplier: 1.6, description: "If the monster fails a saving throw, it can choose to succeed instead (1/Day)." },
+        { name: "Stunning Gaze", multiplier: 1.6, description: "As an action, the monster can force a creature that can see it to save or be stunned." },
+        { name: "Swarm Tactics", multiplier: 1.6, description: "The monsters act as a single swarm, sharing a turn and gaining resistance to physical damage." },
+        { name: "Soul Drain", multiplier: 1.65, description: "Attacks reduce the target's maximum HP until a long rest." },
+        { name: "Corrosive", multiplier: 1.65, description: "The monster's attacks damage armor and weapons, reducing their effectiveness." },
         { name: "Hive Mind", multiplier: 1.7, description: "All monsters are telepathically linked." },
+        { name: "Time-Warped", multiplier: 1.7, description: "Monsters are occasionally affected by a haste or slow spell at random." },
         { name: "Mirage", multiplier: 1.75, description: "Surrounded by illusory duplicates (mirror image)." },
+        { name: "Petrifying Touch", multiplier: 1.75, description: "A monster's attack can force a save against being turned to stone." },
+        { name: "Aura of Weakness", multiplier: 1.75, description: "Creatures near the monster have disadvantage on Strength-based checks and saves." },
+        { name: "Life Leech", multiplier: 1.8, description: "A damaging aura surrounds the monsters, draining life from all nearby creatures." },
+        { name: "Spell-Siphon", multiplier: 1.8, description: "When a creature casts a spell near the monster, the monster can use its reaction to gain temporary HP." },
         { name: "Reactive", multiplier: 1.8, description: "Can take one reaction on every turn in a combat." },
         { name: "Adaptive Resistance", multiplier: 1.85, description: "Gains resistance to the first type of damage it takes." },
+        { name: "Ethereal Jaunt", multiplier: 1.85, description: "The monster can shift between the Ethereal Plane and the Material Plane as a bonus action." },
         { name: "Incorporeal", multiplier: 1.9, description: "Resistant to non-magical physical damage and can move through objects." },
-        { name: "Mythic Trait", multiplier: 2, description: "When reduced to 0 HP, regains full health and gains a new ability." },
-        { name: "Legendary Actions", multiplier: 2, description: "Gains 1 legendary action per round." },
+        { name: "Aura of Silence", multiplier: 1.9, description: "No sound can be created within or pass through a 20-foot radius of the monster." },
+        { name: "Magic Immunity", multiplier: 1.9, description: "The monster is immune to spells of 3rd level or lower." },
+        { name: "Annihilating Strike", multiplier: 1.95, description: "Once per combat, an attack can cause a target to be unable to be revived by normal means if it kills them." },
+        { name: "Mythic Trait", multiplier: 2.0, description: "When reduced to 0 HP, regains full health and gains a new ability." },
+        { name: "True Sight", multiplier: 2.0, description: "The monster has true sight out to 120 feet, seeing through illusions and invisibility." },
+        { name: "Unstoppable", multiplier: 2.0, description: "The monster is immune to being stunned, paralyzed, or petrified." },
+        { name: "Void-Touched", multiplier: 2.0, description: "The monster is resistant to all damage except force and psychic." },
+        { name: "Legendary Actions", multiplier: 2.0, description: "Gains 1 legendary action per round." },
         { name: "Aura of Madness", multiplier: 2.1, description: "Creatures nearby must save or suffer from short-term madness." },
+        { name: "Chronomancer", multiplier: 2.1, description: "The monster can force a creature to re-roll an attack roll, ability check, or saving throw." },
+        { name: "Spell-Thief", multiplier: 2.2, description: "The monster can 'steal' a spell from a caster, preventing them from using it and allowing the monster to cast it once." },
+        { name: "Planar Instability", multiplier: 2.2, description: "The arena randomly shifts to a different plane of existence for one round." },
+        { name: "Symbiotic", multiplier: 2.25, description: "Two different types of monsters are chosen, and they fight as a single symbiotic entity, sharing abilities." },
+        { name: "Damage Transfer", multiplier: 2.25, description: "The monsters can transfer damage they take to a designated 'champion' monster." },
         { name: "Summoner", multiplier: 2.3, description: "Can summon lesser creatures to aid it in battle." },
+        { name: "Possessing", multiplier: 2.3, description: "If a player is killed, the monster's spirit possesses their body, forcing them to fight their allies." },
         { name: "Aura of Antimagic", multiplier: 2.4, description: "All magic is suppressed in a 30-foot radius." },
+        { name: "Reality Warper", multiplier: 2.4, description: "The monster can change the terrain of the arena as a legendary action." },
         { name: "Legendary Resistance (2/Day)", multiplier: 2.5, description: "Can choose to succeed a failed saving throw (2/Day)." },
+        { name: "God-Slayer", multiplier: 2.5, description: "The monster deals double damage to creatures of a celestial or fiendish nature." },
+        { name: "Perfect Camouflage", multiplier: 2.5, description: "The monster is permanently invisible." },
+        { name: "Temporal Clone", multiplier: 2.6, description: "The monster summons a version of itself from one round in the future to fight alongside it." },
+        { name: "Eldritch Storm", multiplier: 2.6, description: "The arena is wracked by a magical storm that deals random elemental damage each round." },
+        { name: "Reactive Evolution", multiplier: 2.7, description: "Every round, the monster adapts to the party's tactics, gaining a new resistance or ability." },
+        { name: "Aura of Nullification", multiplier: 2.7, description: "Creatures near the monster cannot heal or regenerate." },
         { name: "Action-Oriented", multiplier: 2.75, description: "Has special 'villain actions' that trigger at different initiative counts." },
-        { name: "Legendary Actions (2/Day)", multiplier: 3, description: "Gains 2 legendary actions per round." },
-        { name: "Primordial", multiplier: 3.2, description: "Attacks ignore all resistances." },
+        { name: "Avatar of a God", multiplier: 2.8, description: "The monster is a direct avatar of a deity, granting it divine power and immunities." },
+        { name: "World-Breaker", multiplier: 2.8, description: "The monster's attacks sunder the ground, creating difficult terrain and chasms." },
+        { name: "Soul Eater", multiplier: 2.9, description: "A creature killed by the monster has its soul consumed and cannot be resurrected by any means short of a wish spell." },
+        { name: "Legendary Actions (2/Day)", multiplier: 3.0, description: "Gains 2 legendary actions per round." },
+        { name: "Immunity", multiplier: 3.0, description: "The monster is immune to one common damage type (e.g., fire, slashing)." },
+        { name: "Unraveling Form", multiplier: 3.0, description: "The monster's form is unstable. Each time it is hit, it might teleport, turn invisible, or unleash a burst of energy." },
+        { name: "Echoes of the Past", multiplier: 3.2, description: "The monster summons spectral echoes of previously defeated players to fight for it." },
+        { name: "Primordial", multiplier: 3.2, description: "The monster is a being of pure creation or destruction, its attacks ignore all resistances." },
         { name: "Spell-Eater", multiplier: 3.5, description: "Immune to magic and heals from spells cast upon it." },
-        { name: "Aspect of the Tarrasque", multiplier: 4, description: "Reflective carapace, immune to non-magical weapons, 3 legendary resistances." },
+        { name: "Apocalyptic Aura", multiplier: 3.5, description: "The monster's aura deals continuous, untyped damage to all creatures within 60 feet." },
+        { name: "King of Monsters", multiplier: 3.75, description: "If multiple monsters are present, one is a 'King' with double HP, legendary actions, and the ability to command the others." },
+        { name: "Aspect of the Tarrasque", multiplier: 4.0, description: "Reflective carapace, immune to non-magical weapons, 3 legendary resistances." },
+        { name: "Legendary Actions (3/Day)", multiplier: 4.0, description: "Gains 3 legendary actions per round." },
+        { name: "Time Lord", multiplier: 4.0, description: "The monster can take two full turns in a single round." },
+        { name: "Wish-Twister", multiplier: 4.2, description: "The monster can cast counterspell at will and can twist the effects of beneficial spells into harmful ones." },
         { name: "Unkillable", multiplier: 4.5, description: "Cannot be reduced below 1 HP unless a specific, hidden condition is met." },
-        { name: "True Form", multiplier: 5, description: "When defeated, reveals its true, much more powerful form." },
-        { name: "The Final Boss", multiplier: 6, description: "Has Mythic Actions, 3 Legendary Actions, and Legendary Resistance (3/Day)." },
-        { name: "Player Nemesis", multiplier: 7, description: "Has abilities, spells, and tactics designed to counter the party." }
+        { name: "Planar Collapse", multiplier: 4.5, description: "The monster is a living gateway to another plane. Random creatures from that plane are pulled through into the fight each round." },
+        { name: "Anti-Divinity", multiplier: 4.75, description: "The monster's presence severs the connection to the gods. Divine casters (Clerics, Paladins) cannot cast spells." },
+        { name: "True Form", multiplier: 5.0, description: "When defeated, reveals its true, much more powerful form and the fight begins anew." },
+        { name: "All-Resistant", multiplier: 5.0, description: "The monster is resistant to all damage types." },
+        { name: "The Final Boss", multiplier: 6.0, description: "Has Mythic Actions, 3 Legendary Actions, and Legendary Resistance (3/Day)." },
+        { name: "Player Nemesis", multiplier: 7.0, description: "Has abilities, spells, and tactics designed to counter the party." }
     ].sort((a, b) => a.multiplier - b.multiplier);
-
 
     const crToNumeric = (cr) => {
         if (cr.includes('/')) {
@@ -309,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return parseFloat(cr);
     };
-   
+    
     const tooltipCallback = {
         plugins: {
             tooltip: {
@@ -341,7 +402,6 @@ document.addEventListener('DOMContentLoaded', () => {
         maintainAspectRatio: false
     };
 
-
     const wrapLabel = (label, maxLength = 16) => {
         if (label.length <= maxLength) return label;
         const words = label.split(' ');
@@ -357,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lines.push(currentLine.trim());
         return lines;
     };
-   
+    
     new Chart(document.getElementById('monsterPointsChart'), {
         type: 'line',
         data: {
@@ -374,7 +434,6 @@ document.addEventListener('DOMContentLoaded', () => {
         options: { ...tooltipCallback, scales: { ...tooltipCallback.scales, y: { ...tooltipCallback.scales.y, type: 'logarithmic' } } }
     });
 
-
     const modifierBins = modifierData.reduce((acc, mod) => {
         const bin = Math.floor(mod.multiplier * 2) / 2;
         const label = `${bin.toFixed(1)}-${(bin + 0.5).toFixed(1)}`;
@@ -384,7 +443,6 @@ document.addEventListener('DOMContentLoaded', () => {
         acc[label]++;
         return acc;
     }, {});
-
 
     new Chart(document.getElementById('modifierMultiplierChart'), {
         type: 'bar',
@@ -400,7 +458,6 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         options: tooltipCallback
     });
-
 
     new Chart(document.getElementById('strategyChart'), {
         type: 'bar',
@@ -422,12 +479,10 @@ document.addEventListener('DOMContentLoaded', () => {
         options: tooltipCallback
     });
 
-
     const monsterTableBody = document.getElementById('monsterTableBody');
     const monsterSearch = document.getElementById('monsterSearch');
     const modifierTableBody = document.getElementById('modifierTableBody');
     const modifierSearch = document.getElementById('modifierSearch');
-
 
     function populateTable(tableBody, data, renderFn) {
         tableBody.innerHTML = '';
@@ -436,14 +491,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     function renderMonsterRow(monster) {
         const row = document.createElement('tr');
         row.className = 'border-b border-gray-700 hover:bg-gray-800/50';
         row.innerHTML = `<td class="px-6 py-4">${monster.name}</td><td class="px-6 py-4">${monster.cr}</td><td class="px-6 py-4">${monster.points.toLocaleString()}</td>`;
         return row;
     }
-
 
     function renderModifierRow(modifier) {
         const row = document.createElement('tr');
@@ -452,16 +505,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return row;
     }
 
-
     populateTable(monsterTableBody, monsterData, renderMonsterRow);
     populateTable(modifierTableBody, modifierData, renderModifierRow);
-   
+    
     monsterSearch.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
         const filteredData = monsterData.filter(m => m.name.toLowerCase().includes(searchTerm));
         populateTable(monsterTableBody, filteredData, renderMonsterRow);
     });
-
 
     modifierSearch.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
@@ -469,13 +520,11 @@ document.addEventListener('DOMContentLoaded', () => {
         populateTable(modifierTableBody, filteredData, renderModifierRow);
     });
 
-
     const monsterSelect = document.getElementById('monsterSelect');
     const modifierSelect = document.getElementById('modifierSelect');
     const monsterCount = document.getElementById('monsterCount');
     const playerCount = document.getElementById('playerCount');
     const totalPointsResult = document.getElementById('totalPointsResult');
-
 
     monsterData.forEach((monster, index) => {
         const option = document.createElement('option');
@@ -484,7 +533,6 @@ document.addEventListener('DOMContentLoaded', () => {
         monsterSelect.appendChild(option);
     });
 
-
     modifierData.forEach((modifier, index) => {
         const option = document.createElement('option');
         option.value = index;
@@ -492,36 +540,36 @@ document.addEventListener('DOMContentLoaded', () => {
         modifierSelect.appendChild(option);
     });
 
-
     function calculateScore() {
         const selectedMonster = monsterData[monsterSelect.value];
-        const selectedModifier = modifierData[modifierSelect.value];
+        const selectedOptions = modifierSelect.selectedOptions;
+
+        let totalMultiplier = 1.0;
+        if (selectedOptions.length > 0) {
+            for (const option of selectedOptions) {
+                totalMultiplier *= modifierData[option.value].multiplier;
+            }
+        }
+        
         const numMonsters = parseInt(monsterCount.value) || 1;
         const numPlayers = parseInt(playerCount.value) || 1;
 
-
-        if (!selectedMonster || !selectedModifier || numMonsters < 1 || numPlayers < 1) {
+        if (!selectedMonster || numMonsters < 1 || numPlayers < 1) {
             totalPointsResult.textContent = 'Invalid Input';
             return;
         }
 
-
-        const totalPoints = (selectedMonster.points * numMonsters * selectedModifier.multiplier) / (numPlayers * 1.1);
+        const totalPoints = (selectedMonster.points * numMonsters * totalMultiplier) / (numPlayers * 1.1);
         totalPointsResult.textContent = Math.round(totalPoints).toLocaleString();
     }
-
 
     monsterSelect.addEventListener('change', calculateScore);
     modifierSelect.addEventListener('change', calculateScore);
     monsterCount.addEventListener('input', calculateScore);
     playerCount.addEventListener('input', calculateScore);
 
-
     calculateScore();
 });
 </script>
 </body>
 </html>
-
-
-
