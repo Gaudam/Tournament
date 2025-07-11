@@ -395,7 +395,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "True Form", multiplier: 5.0, description: "When defeated, reveals its true, much more powerful form and the fight begins anew." },
         { name: "All-Resistant", multiplier: 5.0, description: "The monster is resistant to all damage types." },
         { name: "The Final Boss", multiplier: 6.0, description: "Has Mythic Actions, 3 Legendary Actions, and Legendary Resistance (3/Day)." },
-        { name: "Player Nemesis", multiplier: 7.0, description: "Has abilities, spells, and tactics designed to counter the party." }
+        { name: "Player Nemesis", multiplier: 7.0, description: "Has abilities, spells, and tactics designed to counter the party." },
+        { name: "Monster Nemesis", multiplier: 0.05, description: "Has abilities, spells, and tactics designed to be countered by the party." }
     ].sort((a, b) => a.multiplier - b.multiplier);
 
     const crToNumeric = (cr) => {
