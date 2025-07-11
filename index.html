@@ -69,12 +69,18 @@
         ::-webkit-scrollbar-track { background: #34495E; }
         ::-webkit-scrollbar-thumb { background: #F1C40F; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #E74C3C; }
-        select[multiple] option {
-            padding: 0.5rem;
+        .modifier-checkbox:checked {
+            background-color: #F1C40F;
+            border-color: #f39c12;
         }
-        select[multiple] option:checked {
-            background: #F1C40F;
-            color: #34495E;
+        .modifier-checkbox:checked + label {
+            color: #F1C40F;
+        }
+        #global-tooltip {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            transition: opacity 0.2s;
         }
     </style>
 </head>
@@ -153,25 +159,41 @@
 
             <div id="calculator" class="mt-12">
                 <h3 class="text-2xl text-center mb-6 text-amber-300">Strategize Your Encounter</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-lg bg-gray-900/50">
-                    <div>
-                        <label for="monsterSelect" class="block mb-2 text-sm font-medium text-slate-300">Choose a Monster:</label>
-                        <select id="monsterSelect" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5"></select>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 rounded-lg bg-gray-900/50">
+                    
+                    <div class="lg:col-span-1 flex flex-col gap-6">
+                        <div>
+                            <label for="monsterSelect" class="block mb-2 text-sm font-medium text-slate-300">Choose a Monster:</label>
+                            <input type="text" id="calcMonsterSearch" placeholder="Search for a monster..." class="w-full p-2 mb-2 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                            <select id="monsterSelect" size="5" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5"></select>
+                        </div>
+                        <div>
+                            <label for="monsterCount" class="block mb-2 text-sm font-medium text-slate-300">Number of Monsters:</label>
+                            <input type="number" id="monsterCount" value="1" min="1" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5">
+                        </div>
+                        <div>
+                            <label for="playerCount" class="block mb-2 text-sm font-medium text-slate-300">Number of Players:</label>
+                            <input type="number" id="playerCount" value="4" min="1" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5">
+                        </div>
                     </div>
-                    <div>
-                        <label for="monsterCount" class="block mb-2 text-sm font-medium text-slate-300">Number of Monsters:</label>
-                        <input type="number" id="monsterCount" value="1" min="1" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5">
+
+                    <div class="lg:col-span-2">
+                        <label class="block mb-2 text-sm font-medium text-slate-300">Choose Modifiers:</label>
+                        <div class="relative mb-2">
+                            <input type="text" id="calcModifierSearch" placeholder="Search for a modifier..." class="w-full p-2 pl-4 pr-40 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <input id="searchInDescription" type="checkbox" class="h-4 w-4 rounded border-gray-500 text-amber-400 focus:ring-amber-500">
+                                <label for="searchInDescription" class="ml-2 text-xs text-slate-400">Also search in description</label>
+                            </div>
+                        </div>
+                        <div id="modifierContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 p-4 bg-gray-800/50 rounded-lg max-h-60 overflow-y-auto">
+                            <!-- Modifier checkboxes will be inserted here by JavaScript -->
+                        </div>
                     </div>
-                    <div>
-                        <label for="modifierSelect" class="block mb-2 text-sm font-medium text-slate-300">Choose Modifiers:</label>
-                        <p class="text-xs text-slate-400 mb-1">Hold Ctrl/Cmd to select multiple.</p>
-                        <select id="modifierSelect" multiple size="5" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5"></select>
-                    </div>
-                    <div>
-                        <label for="playerCount" class="block mb-2 text-sm font-medium text-slate-300">Number of Players:</label>
-                        <input type="number" id="playerCount" value="4" min="1" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5">
-                    </div>
+
                 </div>
+
                 <div class="mt-6 p-6 bg-gray-900 rounded-lg text-center">
                     <h4 class="text-lg text-slate-400">Potential Score</h4>
                     <p id="totalPointsResult" class="text-5xl font-bold text-green-400">0</p>
@@ -227,6 +249,8 @@
     <footer class="text-center p-4 bg-gray-900/50">
         <p class="text-slate-400">May your blades be sharp and your spells true. Good luck, champions.</p>
     </footer>
+
+    <div id="global-tooltip" class="hidden opacity-0 p-2 text-sm bg-slate-800 text-white rounded-md shadow-lg max-w-xs"></div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -532,10 +556,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const monsterSelect = document.getElementById('monsterSelect');
-    const modifierSelect = document.getElementById('modifierSelect');
+    const modifierContainer = document.getElementById('modifierContainer');
     const monsterCount = document.getElementById('monsterCount');
     const playerCount = document.getElementById('playerCount');
     const totalPointsResult = document.getElementById('totalPointsResult');
+    const globalTooltip = document.getElementById('global-tooltip');
+    const calcModifierSearch = document.getElementById('calcModifierSearch');
+    const searchInDescription = document.getElementById('searchInDescription');
+    const calcMonsterSearch = document.getElementById('calcMonsterSearch');
 
     monsterData.forEach((monster, index) => {
         const option = document.createElement('option');
@@ -545,21 +573,95 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     modifierData.forEach((modifier, index) => {
-        const option = document.createElement('option');
-        option.value = index;
-        option.textContent = `${modifier.name} (x${modifier.multiplier})`;
-        modifierSelect.appendChild(option);
+        const id = `modifier-${index}`;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flex items-center modifier-item';
+        wrapper.dataset.description = modifier.description;
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = id;
+        checkbox.dataset.multiplier = modifier.multiplier;
+        checkbox.className = 'modifier-checkbox w-4 h-4 text-amber-400 bg-gray-700 border-gray-600 rounded focus:ring-amber-500 focus:ring-2';
+        checkbox.addEventListener('change', calculateScore);
+
+        const label = document.createElement('label');
+        label.htmlFor = id;
+        label.className = 'ml-2 text-sm font-medium text-slate-300 cursor-pointer';
+        label.textContent = `${modifier.name} (x${modifier.multiplier})`;
+
+        wrapper.appendChild(checkbox);
+        wrapper.appendChild(label);
+        modifierContainer.appendChild(wrapper);
     });
+
+    modifierContainer.addEventListener('mouseover', (e) => {
+        const target = e.target.closest('.modifier-item');
+        if (target) {
+            globalTooltip.textContent = target.dataset.description;
+            globalTooltip.classList.remove('hidden', 'opacity-0');
+        }
+    });
+
+    modifierContainer.addEventListener('mousemove', (e) => {
+        globalTooltip.style.left = `${e.clientX + 15}px`;
+        globalTooltip.style.top = `${e.clientY + 15}px`;
+    });
+
+    modifierContainer.addEventListener('mouseleave', () => {
+        globalTooltip.classList.add('hidden', 'opacity-0');
+    });
+
+    function filterModifiers() {
+        const searchTerm = calcModifierSearch.value.toLowerCase();
+        const searchDesc = searchInDescription.checked;
+        const modifiers = modifierContainer.querySelectorAll('.modifier-item');
+
+        modifiers.forEach(modWrapper => {
+            const label = modWrapper.querySelector('label').textContent.toLowerCase();
+            const description = modWrapper.dataset.description.toLowerCase();
+            
+            const nameMatch = label.includes(searchTerm);
+            const descMatch = searchDesc && description.includes(searchTerm);
+
+            if (nameMatch || descMatch) {
+                modWrapper.style.display = 'flex';
+            } else {
+                modWrapper.style.display = 'none';
+            }
+        });
+    }
+
+    calcModifierSearch.addEventListener('input', filterModifiers);
+    searchInDescription.addEventListener('change', filterModifiers);
+
+    function filterMonsters() {
+        const searchTerm = calcMonsterSearch.value.toLowerCase();
+        const options = monsterSelect.options;
+
+        for (let i = 0; i < options.length; i++) {
+            const option = options[i];
+            const optionText = option.textContent.toLowerCase();
+            if (optionText.includes(searchTerm)) {
+                option.style.display = '';
+            } else {
+                option.style.display = 'none';
+            }
+        }
+    }
+
+    calcMonsterSearch.addEventListener('input', filterMonsters);
+
 
     function calculateScore() {
         const selectedMonster = monsterData[monsterSelect.value];
-        const selectedOptions = modifierSelect.selectedOptions;
+        const checkedModifiers = document.querySelectorAll('#modifierContainer input:checked');
 
         let totalMultiplier = 1.0;
-        if (selectedOptions.length > 0) {
-            for (const option of selectedOptions) {
-                totalMultiplier *= modifierData[option.value].multiplier;
-            }
+        if (checkedModifiers.length > 0) {
+            checkedModifiers.forEach(checkbox => {
+                totalMultiplier *= parseFloat(checkbox.dataset.multiplier);
+            });
         }
         
         const numMonsters = parseInt(monsterCount.value) || 1;
@@ -575,7 +677,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     monsterSelect.addEventListener('change', calculateScore);
-    modifierSelect.addEventListener('change', calculateScore);
     monsterCount.addEventListener('input', calculateScore);
     playerCount.addEventListener('input', calculateScore);
 
