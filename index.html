@@ -150,11 +150,42 @@
             <h2 class="text-3xl text-center mb-4 text-red-500">The Calculus of Courage</h2>
             <p class="text-center max-w-2xl mx-auto text-slate-300 mb-8">Your final score is determined by this sacred formula. Each component is a choice, a risk, a path to glory or ruin.</p>
             <div class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 text-center flex-wrap">
-                <div class="flow-step rounded-lg p-4">Monster Points &times; # Monsters &times; Modifiers</div>
-                <div class="flow-connector">÷</div>
-                <div class="flow-step rounded-lg p-4">(# Players &times; Avg. Level)</div>
+                <div class="flow-step rounded-lg p-4">(Base Score)</div>
+                <div class="flow-connector">&times;</div>
+                <div class="flow-step rounded-lg p-4">Difficulty Multiplier</div>
                 <div class="flow-connector">=</div>
                 <div class="flow-step rounded-lg p-4 bg-green-600 border-green-400">Total Points</div>
+            </div>
+
+            <div class="my-12">
+                <h3 class="text-2xl text-center mb-4 text-amber-300">Encounter Multiplier</h3>
+                <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6 text-sm">The "Adjusted XP" used in the Difficulty Multiplier is increased based on the number of monsters, reflecting the increased challenge of coordinating against multiple foes.</p>
+                <div class="w-full max-w-3xl mx-auto bg-gray-900/50 rounded-lg overflow-hidden">
+                    <table class="w-full text-center text-sm">
+                        <thead class="text-xs text-amber-300 uppercase">
+                            <tr>
+                                <th class="px-4 py-2"># of Monsters</th>
+                                <th class="px-4 py-2">1</th>
+                                <th class="px-4 py-2">2</th>
+                                <th class="px-4 py-2">3-6</th>
+                                <th class="px-4 py-2">7-10</th>
+                                <th class="px-4 py-2">11-14</th>
+                                <th class="px-4 py-2">15+</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-slate-800/50">
+                            <tr>
+                                <td class="px-4 py-2 font-bold text-amber-300">XP Multiplier</td>
+                                <td class="px-4 py-2">x1</td>
+                                <td class="px-4 py-2">x1.5</td>
+                                <td class="px-4 py-2">x2</td>
+                                <td class="px-4 py-2">x2.5</td>
+                                <td class="px-4 py-2">x3</td>
+                                <td class="px-4 py-2">x4</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div id="calculator" class="mt-12">
@@ -203,7 +234,7 @@
                 <div class="mt-6 p-6 bg-gray-900 rounded-lg text-center">
                     <h4 class="text-lg text-slate-400">Potential Score</h4>
                     <p id="totalPointsResult" class="text-5xl font-bold text-green-400">0</p>
-                    <div id="calculation-breakdown" class="mt-4 text-left text-sm text-slate-400 max-w-2xl mx-auto hidden">
+                    <div id="calculation-breakdown" class="mt-4 text-left text-sm text-slate-400 max-w-4xl mx-auto hidden">
                         <!-- Calculation details will be inserted here -->
                     </div>
                 </div>
@@ -211,8 +242,8 @@
         </section>
 
         <section id="strategy" class="mb-12 card rounded-lg p-6">
-            <h2 class="text-3xl text-center mb-4 text-red-500">Strategic Insights</h2>
-            <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6">Consider two paths to a 20,000 point base value: an army of 400 Goblins, or two mighty Beholders. While the base value is similar, the nature of the challenge is vastly different. How will a modifier like "Multi-Attack" (x1.5) affect each scenario?</p>
+            <h2 class="text-3xl text-center mb-4 text-red-500">Strategic Insights: The Power of Punching Up</h2>
+            <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6">The greatest rewards are reserved for those who dare to challenge foes far beyond their station. The Difficulty Multiplier heavily favors lower-level parties taking on high-CR monsters. As shown below, a Level 5 party earns a vastly greater score for defeating a Young Red Dragon than a Level 17 party, even though the Base Score is identical.</p>
             <div class="chart-container">
                 <canvas id="strategyChart"></canvas>
             </div>
@@ -517,17 +548,17 @@ document.addEventListener('DOMContentLoaded', () => {
     new Chart(document.getElementById('strategyChart'), {
         type: 'bar',
         data: {
-            labels: ['Base Points', 'Modified Points (x1.5)'],
+            labels: ['Level 5 Party', 'Level 17 Party'],
             datasets: [
                 {
-                    label: '400 Goblins (20k pts)',
-                    data: [20000, 30000],
-                    backgroundColor: '#E74C3C',
+                    label: 'Base Score',
+                    data: [5900, 5900],
+                    backgroundColor: '#3498DB',
                 },
                 {
-                    label: '2 Beholders (20k pts)',
-                    data: [20000, 30000],
-                    backgroundColor: '#3498DB',
+                    label: 'Final Score',
+                    data: [17405, 2242],
+                    backgroundColor: '#2ECC71',
                 }
             ]
         },
@@ -684,12 +715,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedMonster = monsterData[monsterSelect.value];
         const checkedModifiers = document.querySelectorAll('#modifierContainer input:checked');
 
-        let totalMultiplier = 1.0;
+        let totalCustomMultiplier = 1.0;
         let modifierDetails = [];
         if (checkedModifiers.length > 0) {
             checkedModifiers.forEach(checkbox => {
                 const multiplier = parseFloat(checkbox.dataset.multiplier);
-                totalMultiplier *= multiplier;
+                totalCustomMultiplier *= multiplier;
                 const modName = checkbox.nextElementSibling.textContent;
                 modifierDetails.push(`<li>${modName}</li>`);
             });
@@ -699,31 +730,47 @@ document.addEventListener('DOMContentLoaded', () => {
         const numPlayers = parseInt(playerCount.value) || 1;
         const level = parseInt(playerLevel.value) || 1;
 
-        if (!selectedMonster || numMonsters < 1 || numPlayers < 1 || level < 1) {
+        if (!selectedMonster || numMonsters < 1 || numPlayers < 1 || level < 1 || level > 20) {
             totalPointsResult.textContent = 'Invalid Input';
             breakdownContainer.classList.add('hidden');
             return;
         }
         
-        const divisor = (numPlayers * level);
-        const totalPoints = (selectedMonster.points * numMonsters * totalMultiplier) / (divisor > 0 ? divisor : 1);
+        const baseScore = selectedMonster.points * numMonsters * totalCustomMultiplier;
+        
+        const encounterXpMultiplier = getEncounterMultiplier(numMonsters);
+        const adjustedXp = selectedMonster.points * numMonsters * encounterXpMultiplier;
+        const partyMediumThreshold = xpThresholdsByLevel[level].medium * numPlayers;
+
+        const difficultyMultiplier = adjustedXp / (partyMediumThreshold > 0 ? partyMediumThreshold : 1);
+
+        const totalPoints = baseScore * difficultyMultiplier;
+        
         totalPointsResult.textContent = Math.round(totalPoints).toLocaleString();
 
         let breakdownHTML = `
-            <p class="font-bold text-amber-300">Encounter:</p>
-            <p>${numMonsters} x ${selectedMonster.name} (${selectedMonster.points.toLocaleString()} pts)</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 border-b border-slate-700 pb-4">
+                <div>
+                    <p class="font-bold text-amber-300">Base Score Calculation:</p>
+                    <p class="font-mono text-xs">${selectedMonster.points.toLocaleString()} (pts) &times; ${numMonsters} (#) &times; ${totalCustomMultiplier.toFixed(2)} (mods) = ${Math.round(baseScore).toLocaleString()}</p>
+                </div>
+                <div>
+                    <p class="font-bold text-amber-300">Difficulty Multiplier Calculation:</p>
+                    <p class="font-mono text-xs ml-4">Adj. XP: (${selectedMonster.points.toLocaleString()} &times; ${numMonsters}) &times; ${encounterXpMultiplier} = ${adjustedXp.toLocaleString()}</p>
+                    <p class="font-mono text-xs ml-4">Multiplier: ${adjustedXp.toLocaleString()} / ${partyMediumThreshold.toLocaleString()} (Party Power) = ${difficultyMultiplier.toFixed(2)}x</p>
+                </div>
+            </div>
         `;
-
+        
         if(modifierDetails.length > 0) {
-            breakdownHTML += `
-                <p class="font-bold text-amber-300 mt-2">Applied Modifiers:</p>
-                <ul class="list-disc list-inside">${modifierDetails.join('')}</ul>
-            `;
+            breakdownHTML += `<div class="mt-4"><p class="font-bold text-amber-300">Applied Modifiers:</p><ul class="list-disc list-inside text-xs mt-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4">${modifierDetails.join('')}</ul></div>`;
         }
-
+        
         breakdownHTML += `
-            <p class="font-bold text-amber-300 mt-2">Formula:</p>
-            <p class="font-mono text-xs">(${selectedMonster.points.toLocaleString()} &times; ${numMonsters} &times; ${totalMultiplier.toFixed(2)}) / (${numPlayers} &times; ${level}) = ${Math.round(totalPoints).toLocaleString()}</p>
+            <div class="mt-4 pt-4 border-t border-slate-700">
+                <p class="font-bold text-amber-300 text-center">Final Score Calculation:</p>
+                <p class="font-mono text-center text-xs">${Math.round(baseScore).toLocaleString()} (Base Score) &times; ${difficultyMultiplier.toFixed(2)}x (Difficulty) = ${Math.round(totalPoints).toLocaleString()}</p>
+            </div>
         `;
 
         breakdownContainer.innerHTML = breakdownHTML;
