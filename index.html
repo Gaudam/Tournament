@@ -216,7 +216,10 @@
                     </div>
 
                     <div class="lg:col-span-2">
-                        <label class="block mb-2 text-sm font-medium text-slate-300">Choose Modifiers:</label>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-sm font-medium text-slate-300">Choose Modifiers:</label>
+                            <button id="unselectAllBtn" class="text-xs text-amber-400 hover:text-amber-200">Unselect All</button>
+                        </div>
                         <div class="relative mb-2">
                             <input type="text" id="calcModifierSearch" placeholder="Search for a modifier..." class="w-full p-2 pl-4 pr-40 bg-gray-700 border border-gray-600 rounded-lg text-white">
                             <div class="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -449,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function getEncounterMultiplier(numMonsters) {
-        if (numMonsters === 1) return 1;
+        if (numMonsters <= 1) return 1;
         if (numMonsters === 2) return 1.5;
         if (numMonsters >= 3 && numMonsters <= 6) return 2;
         if (numMonsters >= 7 && numMonsters <= 10) return 2.5;
@@ -617,6 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInDescription = document.getElementById('searchInDescription');
     const calcMonsterSearch = document.getElementById('calcMonsterSearch');
     const breakdownContainer = document.getElementById('calculation-breakdown');
+    const unselectAllBtn = document.getElementById('unselectAllBtn');
 
     monsterData.forEach((monster, index) => {
         const option = document.createElement('option');
@@ -646,6 +650,14 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.appendChild(checkbox);
         wrapper.appendChild(label);
         modifierContainer.appendChild(wrapper);
+    });
+
+    unselectAllBtn.addEventListener('click', () => {
+        const checkedModifiers = document.querySelectorAll('#modifierContainer input:checked');
+        checkedModifiers.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        calculateScore();
     });
 
     modifierContainer.addEventListener('mouseover', (e) => {
@@ -715,16 +727,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedMonster = monsterData[monsterSelect.value];
         const checkedModifiers = document.querySelectorAll('#modifierContainer input:checked');
 
-        let totalCustomMultiplier = 1.0;
+        let modifierBonusSum = 0;
         let modifierDetails = [];
         if (checkedModifiers.length > 0) {
             checkedModifiers.forEach(checkbox => {
                 const multiplier = parseFloat(checkbox.dataset.multiplier);
-                totalCustomMultiplier *= multiplier;
+                modifierBonusSum += (multiplier - 1.0);
                 const modName = checkbox.nextElementSibling.textContent;
                 modifierDetails.push(`<li>${modName}</li>`);
             });
         }
+        const totalCustomMultiplier = 1.0 + modifierBonusSum;
         
         const numMonsters = parseInt(monsterCount.value) || 1;
         const numPlayers = parseInt(playerCount.value) || 1;
