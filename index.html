@@ -150,9 +150,9 @@
             <h2 class="text-3xl text-center mb-4 text-red-500">The Calculus of Courage</h2>
             <p class="text-center max-w-2xl mx-auto text-slate-300 mb-8">Your final score is determined by this sacred formula. Each component is a choice, a risk, a path to glory or ruin.</p>
             <div class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 text-center flex-wrap">
-                <div class="flow-step rounded-lg p-4">Monster Points &times; # of Monsters &times; Modifiers</div>
+                <div class="flow-step rounded-lg p-4">Monster Points &times; # Monsters &times; Modifiers</div>
                 <div class="flow-connector">÷</div>
-                <div class="flow-step rounded-lg p-4"># of Players &times; 1.1</div>
+                <div class="flow-step rounded-lg p-4">(# Players &times; Avg. Level)</div>
                 <div class="flow-connector">=</div>
                 <div class="flow-step rounded-lg p-4 bg-green-600 border-green-400">Total Points</div>
             </div>
@@ -172,9 +172,15 @@
                             <label for="monsterCount" class="block mb-2 text-sm font-medium text-slate-300">Number of Monsters:</label>
                             <input type="number" id="monsterCount" value="1" min="1" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5">
                         </div>
-                        <div>
-                            <label for="playerCount" class="block mb-2 text-sm font-medium text-slate-300">Number of Players:</label>
-                            <input type="number" id="playerCount" value="4" min="1" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="playerCount" class="block mb-2 text-sm font-medium text-slate-300"># of Players:</label>
+                                <input type="number" id="playerCount" value="4" min="1" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5">
+                            </div>
+                             <div>
+                                <label for="playerLevel" class="block mb-2 text-sm font-medium text-slate-300">Avg. Level:</label>
+                                <input type="number" id="playerLevel" value="5" min="1" max="20" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5">
+                            </div>
                         </div>
                     </div>
 
@@ -197,6 +203,9 @@
                 <div class="mt-6 p-6 bg-gray-900 rounded-lg text-center">
                     <h4 class="text-lg text-slate-400">Potential Score</h4>
                     <p id="totalPointsResult" class="text-5xl font-bold text-green-400">0</p>
+                    <div id="calculation-breakdown" class="mt-4 text-left text-sm text-slate-400 max-w-2xl mx-auto hidden">
+                        <!-- Calculation details will be inserted here -->
+                    </div>
                 </div>
             </div>
         </section>
@@ -395,9 +404,10 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "True Form", multiplier: 5.0, description: "When defeated, reveals its true, much more powerful form and the fight begins anew." },
         { name: "All-Resistant", multiplier: 5.0, description: "The monster is resistant to all damage types." },
         { name: "The Final Boss", multiplier: 6.0, description: "Has Mythic Actions, 3 Legendary Actions, and Legendary Resistance (3/Day)." },
-        { name: "Player Nemesis", multiplier: 7.0, description: "Has abilities, spells, and tactics designed to counter the party." },
-        { name: "Monster Nemesis", multiplier: 0.05, description: "Has abilities, spells, and tactics designed to be countered by the party." }
+        { name: "Player Nemesis", multiplier: 7.0, description: "Has abilities, spells, and tactics designed to counter the party." }
     ].sort((a, b) => a.multiplier - b.multiplier);
+
+    const xpThresholdsByLevel = { 1: { easy: 25, medium: 50, hard: 75, deadly: 100 }, 2: { easy: 50, medium: 100, hard: 150, deadly: 200 }, 3: { easy: 75, medium: 150, hard: 225, deadly: 400 }, 4: { easy: 125, medium: 250, hard: 375, deadly: 500 }, 5: { easy: 250, medium: 500, hard: 750, deadly: 1100 }, 6: { easy: 300, medium: 600, hard: 900, deadly: 1400 }, 7: { easy: 350, medium: 750, hard: 1100, deadly: 1700 }, 8: { easy: 450, medium: 900, hard: 1400, deadly: 2100 }, 9: { easy: 550, medium: 1100, hard: 1600, deadly: 2400 }, 10: { easy: 600, medium: 1200, hard: 1900, deadly: 2800 }, 11: { easy: 800, medium: 1600, hard: 2400, deadly: 3600 }, 12: { easy: 1000, medium: 2000, hard: 3000, deadly: 4500 }, 13: { easy: 1100, medium: 2200, hard: 3400, deadly: 5100 }, 14: { easy: 1250, medium: 2500, hard: 3800, deadly: 5700 }, 15: { easy: 1400, medium: 2800, hard: 4300, deadly: 6400 }, 16: { easy: 1600, medium: 3200, hard: 4800, deadly: 7200 }, 17: { easy: 2000, medium: 3900, hard: 5900, deadly: 8800 }, 18: { easy: 2100, medium: 4200, hard: 6300, deadly: 9500 }, 19: { easy: 2400, medium: 4900, hard: 7300, deadly: 10900 }, 20: { easy: 2800, medium: 5700, hard: 8500, deadly: 12700 } };
 
     const crToNumeric = (cr) => {
         if (cr.includes('/')) {
@@ -406,6 +416,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return parseFloat(cr);
     };
+
+    function getEncounterMultiplier(numMonsters) {
+        if (numMonsters === 1) return 1;
+        if (numMonsters === 2) return 1.5;
+        if (numMonsters >= 3 && numMonsters <= 6) return 2;
+        if (numMonsters >= 7 && numMonsters <= 10) return 2.5;
+        if (numMonsters >= 11 && numMonsters <= 14) return 3;
+        return 4; // 15 or more monsters
+    }
     
     const tooltipCallback = {
         plugins: {
@@ -560,11 +579,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const modifierContainer = document.getElementById('modifierContainer');
     const monsterCount = document.getElementById('monsterCount');
     const playerCount = document.getElementById('playerCount');
+    const playerLevel = document.getElementById('playerLevel');
     const totalPointsResult = document.getElementById('totalPointsResult');
     const globalTooltip = document.getElementById('global-tooltip');
     const calcModifierSearch = document.getElementById('calcModifierSearch');
     const searchInDescription = document.getElementById('searchInDescription');
     const calcMonsterSearch = document.getElementById('calcMonsterSearch');
+    const breakdownContainer = document.getElementById('calculation-breakdown');
 
     monsterData.forEach((monster, index) => {
         const option = document.createElement('option');
@@ -655,31 +676,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function calculateScore() {
+        if (!monsterSelect.value) {
+            breakdownContainer.classList.add('hidden');
+            return;
+        }
+        
         const selectedMonster = monsterData[monsterSelect.value];
         const checkedModifiers = document.querySelectorAll('#modifierContainer input:checked');
 
         let totalMultiplier = 1.0;
+        let modifierDetails = [];
         if (checkedModifiers.length > 0) {
             checkedModifiers.forEach(checkbox => {
-                totalMultiplier *= parseFloat(checkbox.dataset.multiplier);
+                const multiplier = parseFloat(checkbox.dataset.multiplier);
+                totalMultiplier *= multiplier;
+                const modName = checkbox.nextElementSibling.textContent;
+                modifierDetails.push(`<li>${modName}</li>`);
             });
         }
         
         const numMonsters = parseInt(monsterCount.value) || 1;
         const numPlayers = parseInt(playerCount.value) || 1;
+        const level = parseInt(playerLevel.value) || 1;
 
-        if (!selectedMonster || numMonsters < 1 || numPlayers < 1) {
+        if (!selectedMonster || numMonsters < 1 || numPlayers < 1 || level < 1) {
             totalPointsResult.textContent = 'Invalid Input';
+            breakdownContainer.classList.add('hidden');
             return;
         }
-
-        const totalPoints = (selectedMonster.points * numMonsters * totalMultiplier) / (numPlayers * 1.1);
+        
+        const divisor = (numPlayers * level);
+        const totalPoints = (selectedMonster.points * numMonsters * totalMultiplier) / (divisor > 0 ? divisor : 1);
         totalPointsResult.textContent = Math.round(totalPoints).toLocaleString();
+
+        let breakdownHTML = `
+            <p class="font-bold text-amber-300">Encounter:</p>
+            <p>${numMonsters} x ${selectedMonster.name} (${selectedMonster.points.toLocaleString()} pts)</p>
+        `;
+
+        if(modifierDetails.length > 0) {
+            breakdownHTML += `
+                <p class="font-bold text-amber-300 mt-2">Applied Modifiers:</p>
+                <ul class="list-disc list-inside">${modifierDetails.join('')}</ul>
+            `;
+        }
+
+        breakdownHTML += `
+            <p class="font-bold text-amber-300 mt-2">Formula:</p>
+            <p class="font-mono text-xs">(${selectedMonster.points.toLocaleString()} &times; ${numMonsters} &times; ${totalMultiplier.toFixed(2)}) / (${numPlayers} &times; ${level}) = ${Math.round(totalPoints).toLocaleString()}</p>
+        `;
+
+        breakdownContainer.innerHTML = breakdownHTML;
+        breakdownContainer.classList.remove('hidden');
     }
 
     monsterSelect.addEventListener('change', calculateScore);
     monsterCount.addEventListener('input', calculateScore);
     playerCount.addEventListener('input', calculateScore);
+    playerLevel.addEventListener('input', calculateScore);
 
     calculateScore();
 });
