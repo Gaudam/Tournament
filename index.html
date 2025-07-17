@@ -149,13 +149,17 @@
         <section id="formula" class="mb-12 card rounded-lg p-6">
             <h2 class="text-3xl text-center mb-4 text-red-500">The Calculus of Courage</h2>
             <p class="text-center max-w-2xl mx-auto text-slate-300 mb-8">Your final score is determined by this sacred formula. Each component is a choice, a risk, a path to glory or ruin.</p>
+            <!-- ** MODIFICATION START: Added Elite Bonus to the flowchart ** -->
             <div class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 text-center flex-wrap">
                 <div class="flow-step rounded-lg p-4">(Base Score)</div>
                 <div class="flow-connector">&times;</div>
                 <div class="flow-step rounded-lg p-4">Difficulty Multiplier</div>
+                <div class="flow-connector">&times;</div>
+                <div class="flow-step rounded-lg p-4">Elite Bonus</div>
                 <div class="flow-connector">=</div>
                 <div class="flow-step rounded-lg p-4 bg-green-600 border-green-400">Total Points</div>
             </div>
+            <!-- ** MODIFICATION END ** -->
 
             <div class="my-12">
                 <h3 class="text-2xl text-center mb-4 text-amber-300">Encounter Multiplier</h3>
@@ -187,6 +191,46 @@
                     </table>
                 </div>
             </div>
+            
+            <!-- ** MODIFICATION START: Added Elite Opponent Bonus explanation ** -->
+            <div class="my-12">
+                <h3 class="text-2xl text-center mb-4 text-amber-300">Elite Opponent Bonus</h3>
+                <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6 text-sm">To reward the valor required to face truly fearsome foes, a special bonus is applied based on the individual power of the monster. This ensures that defeating a single, mighty beast is as glorious as overcoming a horde.</p>
+                <div class="w-full max-w-3xl mx-auto bg-gray-900/50 rounded-lg overflow-hidden">
+                    <table class="w-full text-center text-sm">
+                        <thead class="text-xs text-amber-300 uppercase">
+                            <tr>
+                                <th class="px-4 py-2">Monster Point Value</th>
+                                <th class="px-4 py-2">Tier</th>
+                                <th class="px-4 py-2">Score Bonus</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-slate-800/50">
+                            <tr>
+                                <td class="px-4 py-2">1,800 - 4,999</td>
+                                <td class="px-4 py-2">Elite</td>
+                                <td class="px-4 py-2">x3</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">5,000 - 9,999</td>
+                                <td class="px-4 py-2">Champion</td>
+                                <td class="px-4 py-2">x4</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">10,000 - 19,999</td>
+                                <td class="px-4 py-2">Legendary</td>
+                                <td class="px-4 py-2">x5</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">20,000+</td>
+                                <td class="px-4 py-2">Mythic</td>
+                                <td class="px-4 py-2">x6</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- ** MODIFICATION END ** -->
 
             <div id="calculator" class="mt-12">
                 <h3 class="text-2xl text-center mb-6 text-amber-300">Strategize Your Encounter</h3>
@@ -298,45 +342,405 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-    const monsterData = [
-        { name: "Rat", cr: "0", points: 10 }, { name: "Owl", cr: "0", points: 10 }, { name: "Stirge", cr: "1/8", points: 25 }, 
-        { name: "Kobold", cr: "1/8", points: 25 }, { name: "Goblin", cr: "1/4", points: 50 }, { name: "Wolf", cr: "1/4", points: 50 },
-        { name: "Acolyte", cr: "1/4", points: 50 }, { name: "Skeleton", cr: "1/4", points: 50 }, { name: "Zombie", cr: "1/4", points: 50 },
-        { name: "Orc", cr: "1/2", points: 100 }, { name: "Shadow", cr: "1/2", points: 100 }, { name: "Warhorse", cr: "1/2", points: 100 },
-        { name: "Gnoll", cr: "1/2", points: 100 }, { name: "Bear (Black)", cr: "1/2", points: 100 }, { name: "Bugbear", cr: "1", points: 200 },
-        { name: "Ghoul", cr: "1", points: 200 }, { name: "Harpy", cr: "1", points: 200 }, { name: "Imp", cr: "1", points: 200 },
-        { name: "Quasit", cr: "1", points: 200 }, { name: "Specter", cr: "1", points: 200 }, { name: "Dire Wolf", cr: "1", points: 200 },
-        { name: "Giant Spider", cr: "1", points: 200 }, { name: "Ogre", cr: "2", points: 450 }, { name: "Ghast", cr: "2", points: 450 },
-        { name: "Minotaur Skeleton", cr: "2", points: 450 }, { name: "Gelatinous Cube", cr: "2", points: 450 }, { name: "Grick", cr: "2", points: 450 },
-        { name: "Ettercap", cr: "2", points: 450 }, { name: "Wight", cr: "3", points: 700 }, { name: "Veteran", cr: "3", points: 700 },
-        { name: "Owlbear", cr: "3", points: 700 }, { name: "Manticore", cr: "3", points: 700 }, { name: "Hell Hound", cr: "3", points: 700 },
-        { name: "Doppelganger", cr: "3", points: 700 }, { name: "Ettin", cr: "4", points: 1100 }, { name: "Ghost", cr: "4", points: 1100 },
-        { name: "Lamia", cr: "4", points: 1100 }, { name: "Redcap", cr: "4", points: 1100 }, { name: "Succubus/Incubus", cr: "4", points: 1100 },
-        { name: "Troll", cr: "5", points: 1800 }, { name: "Hill Giant", cr: "5", points: 1800 }, { name: "Gladiator", cr: "5", points: 1800 },
-        { name: "Gorgon", cr: "5", points: 1800 }, { name: "Umber Hulk", cr: "5", points: 1800 }, { name: "Vampire Spawn", cr: "5", points: 1800 },
-        { name: "Wraith", cr: "5", points: 1800 }, { name: "Wyvern", cr: "6", points: 2300 }, { name: "Cyclops", cr: "6", points: 2300 },
-        { name: "Galeb Duhr", cr: "6", points: 2300 }, { name: "Medusa", cr: "6", points: 2300 }, { name: "Young White Dragon", cr: "6", points: 2300 },
-        { name: "Stone Giant", cr: "7", points: 2900 }, { name: "Oni", cr: "7", points: 2900 }, { name: "Shield Guardian", cr: "7", points: 2900 },
-        { name: "Young Black Dragon", cr: "7", points: 2900 }, { name: "Frost Giant", cr: "8", points: 3900 }, { name: "Cloaker", cr: "8", points: 3900 },
-        { name: "Fomorian", cr: "8", points: 3900 }, { name: "Spirit Naga", cr: "8", points: 3900 }, { name: "Young Green Dragon", cr: "8", points: 3900 },
-        { name: "Fire Giant", cr: "9", points: 5000 }, { name: "Clay Golem", cr: "9", points: 5000 }, { name: "Cloud Giant", cr: "9", points: 5000 },
-        { name: "Treant", cr: "9", points: 5000 }, { name: "Young Blue Dragon", cr: "9", points: 5000 }, { name: "Aboleth", cr: "10", points: 5900 },
-        { name: "Deva", cr: "10", points: 5900 }, { name: "Guardian Naga", cr: "10", points: 5900 }, { name: "Stone Golem", cr: "10", points: 5900 },
-        { name: "Young Red Dragon", cr: "10", points: 5900 }, { name: "Behir", cr: "11", points: 7200 }, { name: "Efreeti", cr: "11", points: 7200 },
-        { name: "Gynosphinx", cr: "11", points: 7200 }, { name: "Horned Devil", cr: "11", points: 7200 }, { name: "Remorhaz", cr: "11", points: 7200 },
-        { name: "Roc", cr: "11", points: 7200 }, { name: "Erinyes", cr: "12", points: 8400 }, { name: "Archmage", cr: "12", points: 8400 },
-        { name: "Bone Devil", cr: "12", points: 8400 }, { name: "Adult White Dragon", cr: "13", points: 10000 }, { name: "Beholder", cr: "13", points: 10000 },
-        { name: "Storm Giant", cr: "13", points: 10000 }, { name: "Vampire", cr: "13", points: 10000 }, { name: "Adult Black Dragon", cr: "14", points: 11500 },
-        { name: "Ice Devil", cr: "14", points: 11500 }, { name: "Death Tyrant", cr: "14", points: 11500 }, { name: "Adult Green Dragon", cr: "15", points: 13000 },
-        { name: "Mummy Lord", cr: "15", points: 13000 }, { name: "Purple Worm", cr: "15", points: 13000 }, 
-        { name: "Adult Copper Dragon (Reflective Hide)", cr: "16", points: 15000 }, { name: "Iron Golem", cr: "16", points: 15000 },
-        { name: "Planetar", cr: "16", points: 15000 }, { name: "Adult Blue Dragon", cr: "16", points: 15000 }, { name: "Adult Red Dragon", cr: "17", points: 18000 },
-        { name: "Androsphinx", cr: "17", points: 18000 }, { name: "Dragon Turtle", cr: "17", points: 18000 }, { name: "Death Knight", cr: "17", points: 18000 },
-        { name: "Balor", cr: "19", points: 22000 }, { name: "Pit Fiend", cr: "20", points: 25000 }, { name: "Ancient Brass Dragon", cr: "20", points: 25000 },
-        { name: "Lich", cr: "21", points: 33000 }, { name: "Solar", cr: "21", points: 33000 }, { name: "Ancient White Dragon", cr: "20", points: 25000 },
-        { name: "Ancient Black Dragon", cr: "21", points: 33000 }, { name: "Ancient Green Dragon", cr: "22", points: 41000 },
-        { name: "Ancient Blue Dragon", cr: "23", points: 50000 }, { name: "Ancient Red Dragon", cr: "24", points: 62000 }, { name: "Tarrasque", cr: "30", points: 155000 }
-    ].sort((a, b) => a.points - b.points);
+
+const monsterData = [
+    { name: "Blood Hawk", cr: "1/8", points: 25 },
+    { name: "Camel", cr: "1/8", points: 25 },
+    { name: "Cultist", cr: "1/8", points: 25 },
+    { name: "Flumph", cr: "1/8", points: 25 },
+    { name: "Flying Snake", cr: "1/8", points: 25 },
+    { name: "Giant Crab", cr: "1/8", points: 25 },
+    { name: "Giant Rat", cr: "1/8", points: 25 },
+    { name: "Giant Weasel", cr: "1/8", points: 25 },
+    { name: "Guard", cr: "1/8", points: 25 },
+    { name: "Kobold", cr: "1/8", points: 25 },
+    { name: "Manes", cr: "1/8", points: 25 },
+    { name: "Mastiff", cr: "1/8", points: 25 },
+    { name: "Merfolk", cr: "1/8", points: 25 },
+    { name: "Monodrone", cr: "1/8", points: 25 },
+    { name: "Mule", cr: "1/8", points: 25 },
+    { name: "Noble", cr: "1/8", points: 25 },
+    { name: "Poisonous Snake", cr: "1/8", points: 25 },
+    { name: "Pony", cr: "1/8", points: 25 },
+    { name: "Slaad Tadpole", cr: "1/8", points: 25 },
+    { name: "Stirge", cr: "1/8", points: 25 },
+    { name: "Tribal Warrior", cr: "1/8", points: 25 },
+    { name: "Twig Blight", cr: "1/8", points: 25 },
+    { name: "Aarakocra", cr: "1/4", points: 50 },
+    { name: "Acolyte", cr: "1/4", points: 50 },
+    { name: "Axe Beak", cr: "1/4", points: 50 },
+    { name: "Blink Dog", cr: "1/4", points: 50 },
+    { name: "Boar", cr: "1/4", points: 50 },
+    { name: "Bullywug", cr: "1/4", points: 50 },
+    { name: "Constrictor Snake", cr: "1/4", points: 50 },
+    { name: "Draft Horse", cr: "1/4", points: 50 },
+    { name: "Dretch", cr: "1/4", points: 50 },
+    { name: "Drow", cr: "1/4", points: 50 },
+    { name: "Duodrone", cr: "1/4", points: 50 },
+    { name: "Elk", cr: "1/4", points: 50 },
+    { name: "Flying Sword", cr: "1/4", points: 50 },
+    { name: "Giant Badger", cr: "1/4", points: 50 },
+    { name: "Giant Bat", cr: "1/4", points: 50 },
+    { name: "Giant Centipede", cr: "1/4", points: 50 },
+    { name: "Giant Frog", cr: "1/4", points: 50 },
+    { name: "Giant Lizard", cr: "1/4", points: 50 },
+    { name: "Giant Owl", cr: "1/4", points: 50 },
+    { name: "Giant Poisonous Snake", cr: "1/4", points: 50 },
+    { name: "Giant Wolf Spider", cr: "1/4", points: 50 },
+    { name: "Goblin", cr: "1/4", points: 50 },
+    { name: "Grimlock", cr: "1/4", points: 50 },
+    { name: "Kenku", cr: "1/4", points: 50 },
+    { name: "Kuo-toa", cr: "1/4", points: 50 },
+    { name: "Mud Mephit", cr: "1/4", points: 50 },
+    { name: "Needle Blight", cr: "1/4", points: 50 },
+    { name: "Panther", cr: "1/4", points: 50 },
+    { name: "Pixie", cr: "1/4", points: 50 },
+    { name: "Pseudodragon", cr: "1/4", points: 50 },
+    { name: "Pteranodon", cr: "1/4", points: 50 },
+    { name: "Riding Horse", cr: "1/4", points: 50 },
+    { name: "Skeleton", cr: "1/4", points: 50 },
+    { name: "Smoke Mephit", cr: "1/4", points: 50 },
+    { name: "Sprite", cr: "1/4", points: 50 },
+    { name: "Steam Mephit", cr: "1/4", points: 50 },
+    { name: "Swarm of Bats", cr: "1/4", points: 50 },
+    { name: "Swarm of Rats", cr: "1/4", points: 50 },
+    { name: "Swarm of Ravens", cr: "1/4", points: 50 },
+    { name: "Troglodyte", cr: "1/4", points: 50 },
+    { name: "Violet Fungus", cr: "1/4", points: 50 },
+    { name: "Winged Kobold", cr: "1/4", points: 50 },
+    { name: "Wolf", cr: "1/4", points: 50 },
+    { name: "Zombie", cr: "1/4", points: 50 },
+    { name: "Ape", cr: "1/2", points: 100 },
+    { name: "Black Bear", cr: "1/2", points: 100 },
+    { name: "Cockatrice", cr: "1/2", points: 100 },
+    { name: "Crocodile", cr: "1/2", points: 100 },
+    { name: "Darkmantle", cr: "1/2", points: 100 },
+    { name: "Deep Gnome (Svirfneblin)", cr: "1/2", points: 100 },
+    { name: "Dust Mephit", cr: "1/2", points: 100 },
+    { name: "Gas Spore", cr: "1/2", points: 100 },
+    { name: "Giant Goat", cr: "1/2", points: 100 },
+    { name: "Giant Sea Horse", cr: "1/2", points: 100 },
+    { name: "Giant Wasp", cr: "1/2", points: 100 },
+    { name: "Gnoll", cr: "1/2", points: 100 },
+    { name: "Gray Ooze", cr: "1/2", points: 100 },
+    { name: "Hobgoblin", cr: "1/2", points: 100 },
+    { name: "Ice Mephit", cr: "1/2", points: 100 },
+    { name: "Jackalwere", cr: "1/2", points: 100 },
+    { name: "Lizardfolk", cr: "1/2", points: 100 },
+    { name: "Magma Mephit", cr: "1/2", points: 100 },
+    { name: "Magmin", cr: "1/2", points: 100 },
+    { name: "Myconid Adult", cr: "1/2", points: 100 },
+    { name: "Orc", cr: "1/2", points: 100 },
+    { name: "Piercer", cr: "1/2", points: 100 },
+    { name: "Reef Shark", cr: "1/2", points: 100 },
+    { name: "Rust Monster", cr: "1/2", points: 100 },
+    { name: "Sahuagin", cr: "1/2", points: 100 },
+    { name: "Satyr", cr: "1/2", points: 100 },
+    { name: "Scout", cr: "1/2", points: 100 },
+    { name: "Shadow", cr: "1/2", points: 100 },
+    { name: "Swarm of Insects", cr: "1/2", points: 100 },
+    { name: "Thug", cr: "1/2", points: 100 },
+    { name: "Tridrone", cr: "1/2", points: 100 },
+    { name: "Vine Blight", cr: "1/2", points: 100 },
+    { name: "Warhorse", cr: "1/2", points: 100 },
+    { name: "Warhorse Skeleton", cr: "1/2", points: 100 },
+    { name: "Worg", cr: "1/2", points: 100 },
+    { name: "Animated Armor", cr: "1", points: 200 },
+    { name: "Brass Dragon Wyrmling", cr: "1", points: 200 },
+    { name: "Brown Bear", cr: "1", points: 200 },
+    { name: "Bugbear", cr: "1", points: 200 },
+    { name: "Copper Dragon Wyrmling", cr: "1", points: 200 },
+    { name: "Death Dog", cr: "1", points: 200 },
+    { name: "Dire Wolf", cr: "1", points: 200 },
+    { name: "Dryad", cr: "1", points: 200 },
+    { name: "Duergar", cr: "1", points: 200 },
+    { name: "Faerie Dragon", cr: "1", points: 200 },
+    { name: "Fire Snake", cr: "1", points: 200 },
+    { name: "Ghoul", cr: "1", points: 200 },
+    { name: "Giant Eagle", cr: "1", points: 200 },
+    { name: "Giant Hyena", cr: "1", points: 200 },
+    { name: "Giant Octopus", cr: "1", points: 200 },
+    { name: "Giant Spider", cr: "1", points: 200 },
+    { name: "Giant Toad", cr: "1", points: 200 },
+    { name: "Giant Vulture", cr: "1", points: 200 },
+    { name: "Half-Ogre", cr: "1", points: 200 },
+    { name: "Harpy", cr: "1", points: 200 },
+    { name: "Hippogriff", cr: "1", points: 200 },
+    { name: "Imp", cr: "1", points: 200 },
+    { name: "Kuo-toa Whip", cr: "1", points: 200 },
+    { name: "Lion", cr: "1", points: 200 },
+    { name: "Quaggoth Spore Servant", cr: "1", points: 200 },
+    { name: "Quadrone", cr: "1", points: 200 },
+    { name: "Quasit", cr: "1", points: 200 },
+    { name: "Scarecrow", cr: "1", points: 200 },
+    { name: "Specter", cr: "1", points: 200 },
+    { name: "Spy", cr: "1", points: 200 },
+    { name: "Swarm of Quippers", cr: "1", points: 200 },
+    { name: "Thri-kreen", cr: "1", points: 200 },
+    { name: "Tiger", cr: "1", points: 200 },
+    { name: "Yuan-ti Pureblood", cr: "1", points: 200 },
+    { name: "Allosaurus", cr: "2", points: 450 },
+    { name: "Ankheg", cr: "2", points: 450 },
+    { name: "Awakened Tree", cr: "2", points: 450 },
+    { name: "Azer", cr: "2", points: 450 },
+    { name: "Berserker", cr: "2", points: 450 },
+    { name: "Black Dragon Wyrmling", cr: "2", points: 450 },
+    { name: "Bronze Dragon Wyrmling", cr: "2", points: 450 },
+    { name: "Carrion Crawler", cr: "2", points: 450 },
+    { name: "Centaur", cr: "2", points: 450 },
+    { name: "Cult Fanatic", cr: "2", points: 450 },
+    { name: "Druid", cr: "2", points: 450 },
+    { name: "Ettercap", cr: "2", points: 450 },
+    { name: "Gargoyle", cr: "2", points: 450 },
+    { name: "Gelatinous Cube", cr: "2", points: 450 },
+    { name: "Ghast", cr: "2", points: 450 },
+    { name: "Giant Boar", cr: "2", points: 450 },
+    { name: "Giant Constrictor Snake", cr: "2", points: 450 },
+    { name: "Giant Elk", cr: "2", points: 450 },
+    { name: "Gibbering Mouther", cr: "2", points: 450 },
+    { name: "Githzerai Monk", cr: "2", points: 450 },
+    { name: "Gnoll Pack Lord", cr: "2", points: 450 },
+    { name: "Green Dragon Wyrmling", cr: "2", points: 450 },
+    { name: "Grick", cr: "2", points: 450 },
+    { name: "Griffon", cr: "2", points: 450 },
+    { name: "Hunter Shark", cr: "2", points: 450 },
+    { name: "Intellect Devourer", cr: "2", points: 450 },
+    { name: "Lizardfolk Shaman", cr: "2", points: 450 },
+    { name: "Merrow", cr: "2", points: 450 },
+    { name: "Mimic", cr: "2", points: 450 },
+    { name: "Minotaur Skeleton", cr: "2", points: 450 },
+    { name: "Myconid Sovereign", cr: "2", points: 450 },
+    { name: "Nothic", cr: "2", points: 450 },
+    { name: "Ochre Jelly", cr: "2", points: 450 },
+    { name: "Ogre", cr: "2", points: 450 },
+    { name: "Ogre Zombie", cr: "2", points: 450 },
+    { name: "Orc Eye of Gruumsh", cr: "2", points: 450 },
+    { name: "Orog", cr: "2", points: 450 },
+    { name: "Pegasus", cr: "2", points: 450 },
+    { name: "Pentadrone", cr: "2", points: 450 },
+    { name: "Peryton", cr: "2", points: 450 },
+    { name: "Plesiosaurus", cr: "2", points: 450 },
+    { name: "Polar Bear", cr: "2", points: 450 },
+    { name: "Priest", cr: "2", points: 450 },
+    { name: "Quaggoth", cr: "2", points: 450 },
+    { name: "Rhinoceros", cr: "2", points: 450 },
+    { name: "Rug of Smothering", cr: "2", points: 450 },
+    { name: "Saber-Toothed Tiger", cr: "2", points: 450 },
+    { name: "Sahuagin Priestess", cr: "2", points: 450 },
+    { name: "Sea Hag", cr: "2", points: 450 },
+    { name: "Silver Dragon Wyrmling", cr: "2", points: 450 },
+    { name: "Spined Devil", cr: "2", points: 450 },
+    { name: "Swarm of Poisonous Snakes", cr: "2", points: 450 },
+    { name: "Wererat", cr: "2", points: 450 },
+    { name: "White Dragon Wyrmling", cr: "2", points: 450 },
+    { name: "Will-o'-Wisp", cr: "2", points: 450 },
+    { name: "Ankylosaurus", cr: "3", points: 700 },
+    { name: "Basilisk", cr: "3", points: 700 },
+    { name: "Bearded Devil", cr: "3", points: 700 },
+    { name: "Blue Dragon Wyrmling", cr: "3", points: 700 },
+    { name: "Bugbear Chief", cr: "3", points: 700 },
+    { name: "Displacer Beast", cr: "3", points: 700 },
+    { name: "Doppelganger", cr: "3", points: 700 },
+    { name: "Giant Scorpion", cr: "3", points: 700 },
+    { name: "Githyanki Warrior", cr: "3", points: 700 },
+    { name: "Gold Dragon Wyrmling", cr: "3", points: 700 },
+    { name: "Green Hag", cr: "3", points: 700 },
+    { name: "Grell", cr: "3", points: 700 },
+    { name: "Hell Hound", cr: "3", points: 700 },
+    { name: "Hobgoblin Captain", cr: "3", points: 700 },
+    { name: "Hook Horror", cr: "3", points: 700 },
+    { name: "Killer Whale", cr: "3", points: 700 },
+    { name: "Knight", cr: "3", points: 700 },
+    { name: "Manticore", cr: "3", points: 700 },
+    { name: "Minotaur", cr: "3", points: 700 },
+    { name: "Mummy", cr: "3", points: 700 },
+    { name: "Nightmare", cr: "3", points: 700 },
+    { name: "Owlbear", cr: "3", points: 700 },
+    { name: "Phase Spider", cr: "3", points: 700 },
+    { name: "Spectator", cr: "3", points: 700 },
+    { name: "Water Weird", cr: "3", points: 700 },
+    { name: "Werewolf", cr: "3", points: 700 },
+    { name: "Wight", cr: "3", points: 700 },
+    { name: "Winter Wolf", cr: "3", points: 700 },
+    { name: "Yeti", cr: "3", points: 700 },
+    { name: "Yuan-ti Malison", cr: "3", points: 700 },
+    { name: "Banshee", cr: "4", points: 1100 },
+    { name: "Black Pudding", cr: "4", points: 1100 },
+    { name: "Bone Naga", cr: "4", points: 1100 },
+    { name: "Chuul", cr: "4", points: 1100 },
+    { name: "Couatl", cr: "4", points: 1100 },
+    { name: "Elephant", cr: "4", points: 1100 },
+    { name: "Ettin", cr: "4", points: 1100 },
+    { name: "Flameskull", cr: "4", points: 1100 },
+    { name: "Ghost", cr: "4", points: 1100 },
+    { name: "Gnoll Fang of Yeenoghu", cr: "4", points: 1100 },
+    { name: "Helmed Horror", cr: "4", points: 1100 },
+    { name: "Lamia", cr: "4", points: 1100 },
+    { name: "Lizard King/Queen", cr: "4", points: 1100 },
+    { name: "Orc War Chief", cr: "4", points: 1100 },
+    { name: "Red Dragon Wyrmling", cr: "4", points: 1100 },
+    { name: "Redcap", cr: "4", points: 1100 },
+    { name: "Shadow Demon", cr: "4", points: 1100 },
+    { name: "Succubus", cr: "4", points: 1100 },
+    { name: "Succubus/Incubus", cr: "4", points: 1100 },
+    { name: "Wereboar", cr: "4", points: 1100 },
+    { name: "Weretiger", cr: "4", points: 1100 },
+    { name: "Air Elemental", cr: "5", points: 1800 },
+    { name: "Barbed Devil", cr: "5", points: 1800 },
+    { name: "Barlgura", cr: "5", points: 1800 },
+    { name: "Beholder Zombie", cr: "5", points: 1800 },
+    { name: "Bulette", cr: "5", points: 1800 },
+    { name: "Cambion", cr: "5", points: 1800 },
+    { name: "Drow Elite Warrior", cr: "5", points: 1800 },
+    { name: "Earth Elemental", cr: "5", points: 1800 },
+    { name: "Fire Elemental", cr: "5", points: 1800 },
+    { name: "Flesh Golem", cr: "5", points: 1800 },
+    { name: "Giant Crocodile", cr: "5", points: 1800 },
+    { name: "Giant Shark", cr: "5", points: 1800 },
+    { name: "Gladiator", cr: "5", points: 1800 },
+    { name: "Gorgon", cr: "5", points: 1800 },
+    { name: "Half-Red Dragon Veteran", cr: "5", points: 1800 },
+    { name: "Hill Giant", cr: "5", points: 1800 },
+    { name: "Mezzoloth", cr: "5", points: 1800 },
+    { name: "Night Hag", cr: "5", points: 1800 },
+    { name: "Otyugh", cr: "5", points: 1800 },
+    { name: "Red Slaad", cr: "5", points: 1800 },
+    { name: "Revenant", cr: "5", points: 1800 },
+    { name: "Roper", cr: "5", points: 1800 },
+    { name: "Sahuagin Baron", cr: "5", points: 1800 },
+    { name: "Salamander", cr: "5", points: 1800 },
+    { name: "Shambling Mound", cr: "5", points: 1800 },
+    { name: "Triceratops", cr: "5", points: 1800 },
+    { name: "Troll", cr: "5", points: 1800 },
+    { name: "Umber Hulk", cr: "5", points: 1800 },
+    { name: "Unicorn", cr: "5", points: 1800 },
+    { name: "Vampire Spawn", cr: "5", points: 1800 },
+    { name: "Water Elemental", cr: "5", points: 1800 },
+    { name: "Werebear", cr: "5", points: 1800 },
+    { name: "Wraith", cr: "5", points: 1800 },
+    { name: "Xorn", cr: "5", points: 1800 },
+    { name: "Young Remorhaz", cr: "5", points: 1800 },
+    { name: "Chasme", cr: "6", points: 2300 },
+    { name: "Chimera", cr: "6", points: 2300 },
+    { name: "Cyclops", cr: "6", points: 2300 },
+    { name: "Drider", cr: "6", points: 2300 },
+    { name: "Galeb Duhr", cr: "6", points: 2300 },
+    { name: "Githzerai Zerth", cr: "6", points: 2300 },
+    { name: "Hobgoblin Warlord", cr: "6", points: 2300 },
+    { name: "Invisible Stalker", cr: "6", points: 2300 },
+    { name: "Kuo-toa Archpriest", cr: "6", points: 2300 },
+    { name: "Mage", cr: "6", points: 2300 },
+    { name: "Mammoth", cr: "6", points: 2300 },
+    { name: "Medusa", cr: "6", points: 2300 },
+    { name: "Vrock", cr: "6", points: 2300 },
+    { name: "Wyvern", cr: "6", points: 2300 },
+    { name: "Young Brass Dragon", cr: "6", points: 2300 },
+    { name: "Young White Dragon", cr: "6", points: 2300 },
+    { name: "Blue Slaad", cr: "7", points: 2900 },
+    { name: "Drow Mage", cr: "7", points: 2900 },
+    { name: "Giant Ape", cr: "7", points: 2900 },
+    { name: "Grick Alpha", cr: "7", points: 2900 },
+    { name: "Mind Flayer", cr: "7", points: 2900 },
+    { name: "Oni", cr: "7", points: 2900 },
+    { name: "Shield Guardian", cr: "7", points: 2900 },
+    { name: "Stone Giant", cr: "7", points: 2900 },
+    { name: "Young Black Dragon", cr: "7", points: 2900 },
+    { name: "Young Copper Dragon", cr: "7", points: 2900 },
+    { name: "Yuan-ti Abomination", cr: "7", points: 2900 },
+    { name: "Assassin", cr: "8", points: 3900 },
+    { name: "Chain Devil", cr: "8", points: 3900 },
+    { name: "Cloaker", cr: "8", points: 3900 },
+    { name: "Drow Priestess of Lolth", cr: "8", points: 3900 },
+    { name: "Fomorian", cr: "8", points: 3900 },
+    { name: "Frost Giant", cr: "8", points: 3900 },
+    { name: "Githyanki Knight", cr: "8", points: 3900 },
+    { name: "Green Slaad", cr: "8", points: 3900 },
+    { name: "Hezrou", cr: "8", points: 3900 },
+    { name: "Hydra", cr: "8", points: 3900 },
+    { name: "Spirit Naga", cr: "8", points: 3900 },
+    { name: "Tyrannosaurus Rex", cr: "8", points: 3900 },
+    { name: "Young Bronze Dragon", cr: "8", points: 3900 },
+    { name: "Young Green Dragon", cr: "8", points: 3900 },
+    { name: "Abominable Yeti", cr: "9", points: 5000 },
+    { name: "Bone Devil", cr: "9", points: 5000 },
+    { name: "Clay Golem", cr: "9", points: 5000 },
+    { name: "Cloud Giant", cr: "9", points: 5000 },
+    { name: "Fire Giant", cr: "9", points: 5000 },
+    { name: "Glabrezu", cr: "9", points: 5000 },
+    { name: "Gray Slaad", cr: "9", points: 5000 },
+    { name: "Nycaloth", cr: "9", points: 5000 },
+    { name: "Treant", cr: "9", points: 5000 },
+    { name: "Young Blue Dragon", cr: "9", points: 5000 },
+    { name: "Young Silver Dragon", cr: "9", points: 5000 },
+    { name: "Aboleth", cr: "10", points: 5900 },
+    { name: "Death Slaad", cr: "10", points: 5900 },
+    { name: "Deva", cr: "10", points: 5900 },
+    { name: "Guardian Naga", cr: "10", points: 5900 },
+    { name: "Stone Golem", cr: "10", points: 5900 },
+    { name: "Yochlol", cr: "10", points: 5900 },
+    { name: "Young Gold Dragon", cr: "10", points: 5900 },
+    { name: "Young Red Dragon", cr: "10", points: 5900 },
+    { name: "Behir", cr: "11", points: 7200 },
+    { name: "Dao", cr: "11", points: 7200 },
+    { name: "Djinni", cr: "11", points: 7200 },
+    { name: "Efreeti", cr: "11", points: 7200 },
+    { name: "Gynosphinx", cr: "11", points: 7200 },
+    { name: "Horned Devil", cr: "11", points: 7200 },
+    { name: "Marid", cr: "11", points: 7200 },
+    { name: "Remorhaz", cr: "11", points: 7200 },
+    { name: "Roc", cr: "11", points: 7200 },
+    { name: "Arcanaloth", cr: "12", points: 8400 },
+    { name: "Archmage", cr: "12", points: 8400 },
+    { name: "Erinyes", cr: "12", points: 8400 },
+    { name: "Adult Brass Dragon", cr: "13", points: 10000 },
+    { name: "Adult White Dragon", cr: "13", points: 10000 },
+    { name: "Beholder", cr: "13", points: 10000 },
+    { name: "Nalfeshnee", cr: "13", points: 10000 },
+    { name: "Rakshasa", cr: "13", points: 10000 },
+    { name: "Storm Giant", cr: "13", points: 10000 },
+    { name: "Ultroloth", cr: "13", points: 10000 },
+    { name: "Vampire", cr: "13", points: 10000 },
+    { name: "Young Red Shadow Dragon", cr: "13", points: 10000 },
+    { name: "Adult Black Dragon", cr: "14", points: 11500 },
+    { name: "Adult Copper Dragon", cr: "14", points: 11500 },
+    { name: "Death Tyrant", cr: "14", points: 11500 },
+    { name: "Ice Devil", cr: "14", points: 11500 },
+    { name: "Adult Bronze Dragon", cr: "15", points: 13000 },
+    { name: "Adult Green Dragon", cr: "15", points: 13000 },
+    { name: "Mummy Lord", cr: "15", points: 13000 },
+    { name: "Purple Worm", cr: "15", points: 13000 },
+    { name: "Adult Blue Dragon", cr: "16", points: 15000 },
+    { name: "Adult Silver Dragon", cr: "16", points: 15000 },
+    { name: "Iron Golem", cr: "16", points: 15000 },
+    { name: "Marilith", cr: "16", points: 15000 },
+    { name: "Planetar", cr: "16", points: 15000 },
+    { name: "Adult Blue Dracolich", cr: "17", points: 18000 },
+    { name: "Adult Gold Dragon", cr: "17", points: 18000 },
+    { name: "Adult Red Dragon", cr: "17", points: 18000 },
+    { name: "Androsphinx", cr: "17", points: 18000 },
+    { name: "Death Knight", cr: "17", points: 18000 },
+    { name: "Dragon Turtle", cr: "17", points: 18000 },
+    { name: "Goristro", cr: "17", points: 18000 },
+    { name: "Demilich", cr: "18", points: 20000 },
+    { name: "Balor", cr: "19", points: 22000 },
+    { name: "Ancient Brass Dragon", cr: "20", points: 25000 },
+    { name: "Ancient White Dragon", cr: "20", points: 25000 },
+    { name: "Pit Fiend", cr: "20", points: 25000 },
+    { name: "Ancient Black Dragon", cr: "21", points: 33000 },
+    { name: "Ancient Copper Dragon", cr: "21", points: 33000 },
+    { name: "Lich", cr: "21", points: 33000 },
+    { name: "Solar", cr: "21", points: 33000 },
+    { name: "Ancient Bronze Dragon", cr: "22", points: 41000 },
+    { name: "Ancient Green Dragon", cr: "22", points: 41000 },
+    { name: "Ancient Blue Dragon", cr: "23", points: 50000 },
+    { name: "Ancient Silver Dragon", cr: "23", points: 50000 },
+    { name: "Empyrean", cr: "23", points: 50000 },
+    { name: "Kraken", cr: "23", points: 50000 },
+    { name: "Ancient Gold Dragon", cr: "24", points: 62000 },
+    { name: "Ancient Red Dragon", cr: "24", points: 62000 },
+    { name: "Tarrasque", cr: "30", points: 155000 }
+].sort((a, b) => a.points - b.points);
+
 
     const modifierData = [
         { name: "Thick-Skinned", multiplier: 1.1, description: "Monsters have +1 AC." },
@@ -459,6 +863,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (numMonsters >= 11 && numMonsters <= 14) return 3;
         return 4; // 15 or more monsters
     }
+
+    // ** MODIFICATION START: Added function for Elite Opponent Bonus **
+    function getEliteOpponentBonus(monsterPoints) {
+        if (monsterPoints >= 20000) return 6.0;
+        if (monsterPoints >= 10000) return 5.0;
+        if (monsterPoints >= 5000) return 4.0;
+        if (monsterPoints >= 1800) return 3.0;
+        return 1.0; // No bonus for weaker monsters
+    }
+    // ** MODIFICATION END **
     
     const tooltipCallback = {
         plugins: {
@@ -560,7 +974,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 {
                     label: 'Final Score',
-                    data: [17405, 2242],
+                    data: [25665, 6726], // Updated with Elite Bonus
                     backgroundColor: '#2ECC71',
                 }
             ]
@@ -751,16 +1165,20 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const baseScore = selectedMonster.points * numMonsters * totalCustomMultiplier;
         
+        // ** MODIFICATION START: Reverted to original logic and added Elite Bonus **
         const encounterXpMultiplier = getEncounterMultiplier(numMonsters);
         const adjustedXp = selectedMonster.points * numMonsters * encounterXpMultiplier;
         const partyMediumThreshold = xpThresholdsByLevel[level].medium * numPlayers;
-
         const difficultyMultiplier = adjustedXp / (partyMediumThreshold > 0 ? partyMediumThreshold : 1);
+        
+        const eliteOpponentBonus = getEliteOpponentBonus(selectedMonster.points);
 
-        const totalPoints = baseScore * difficultyMultiplier;
+        const totalPoints = baseScore * difficultyMultiplier * eliteOpponentBonus;
+        // ** MODIFICATION END **
         
         totalPointsResult.textContent = Math.round(totalPoints).toLocaleString();
 
+        // ** MODIFICATION START: Updated breakdown display **
         let breakdownHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 border-b border-slate-700 pb-4">
                 <div>
@@ -782,9 +1200,10 @@ document.addEventListener('DOMContentLoaded', () => {
         breakdownHTML += `
             <div class="mt-4 pt-4 border-t border-slate-700">
                 <p class="font-bold text-amber-300 text-center">Final Score Calculation:</p>
-                <p class="font-mono text-center text-xs">${Math.round(baseScore).toLocaleString()} (Base Score) &times; ${difficultyMultiplier.toFixed(2)}x (Difficulty) = ${Math.round(totalPoints).toLocaleString()}</p>
+                <p class="font-mono text-center text-xs">${Math.round(baseScore).toLocaleString()} (Base) &times; ${difficultyMultiplier.toFixed(2)}x (Difficulty) &times; ${eliteOpponentBonus.toFixed(1)}x (Elite) = ${Math.round(totalPoints).toLocaleString()}</p>
             </div>
         `;
+        // ** MODIFICATION END **
 
         breakdownContainer.innerHTML = breakdownHTML;
         breakdownContainer.classList.remove('hidden');
@@ -795,6 +1214,12 @@ document.addEventListener('DOMContentLoaded', () => {
     playerCount.addEventListener('input', calculateScore);
     playerLevel.addEventListener('input', calculateScore);
 
+    // Set initial default selection to show a calculation on page load
+    if (monsterSelect.options.length > 0) {
+        let defaultIndex = Array.from(monsterSelect.options).findIndex(opt => opt.text.includes("Young Black Dragon"));
+        if (defaultIndex === -1) defaultIndex = 0; // fallback to the first monster
+        monsterSelect.value = defaultIndex;
+    }
     calculateScore();
 });
 </script>
