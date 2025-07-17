@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Grand Tournament: A Monster Hunter's Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- 
+    Infographic Plan:
+    1. Narrative Structure:
+        - Hook: Epic introduction to the tournament.
+        - The Combatants: Analysis of the monster list (point distribution by CR, example tiers).
+        - The Gauntlet: Analysis of the modifier system (multiplier distribution).
+        - The Calculus of Courage: A visual breakdown of the scoring formula and an interactive calculator.
+        - Strategic Insights: Comparative analysis of different challenge types.
+        - Reference Tables: Searchable lists for all monsters and modifiers.
+    2. Visualization Choices (NO SVG, NO Mermaid JS Confirmed):
+        - Monster Points vs. CR: Chart.js Line Chart (Canvas). Justification: Best for showing trends.
+        - Modifier Multiplier Distribution: Chart.js Bar Chart/Histogram (Canvas). Justification: Best for showing frequency distribution.
+        - Scoring Formula: HTML/CSS Flexbox Flowchart. Justification: Clear, non-SVG diagram.
+        - Strategic Comparison: Chart.js Grouped Bar Chart (Canvas). Justification: Ideal for comparing components of different scenarios.
+        - Data Tables: Standard HTML tables with JavaScript for search/filtering. Justification: Optimal for large, sortable datasets.
+    3. Color Palette: "Energetic & Playful" selected for a vibrant, high-fantasy theme.
+    -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #34495E;
+            color: #ECF0F1;
+        }
+        h1, h2, h3 {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .card {
+            background-color: rgba(13, 13, 13, 0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(236, 240, 241, 0.1);
+        }
+        .flow-step {
+            background-color: #34495E;
+            border: 2px solid #F1C40F;
+            color: #ECF0F1;
+        }
+        .flow-connector {
+            font-size: 2.5rem;
+            color: #F1C40F;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #34495E; }
+        ::-webkit-scrollbar-thumb { background: #F1C40F; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #E74C3C; }
+        .modifier-checkbox:checked {
+            background-color: #F1C40F;
+            border-color: #f39c12;
+        }
+        .modifier-checkbox:checked + label {
+            color: #F1C40F;
+        }
+        #global-tooltip {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="p-8 md:p-12 bg-gray-900/50">
+    <!-- START: Navigation Bar -->
+    <nav class="text-center mb-8">
+        <a href="index.html" class="text-lg text-amber-300 hover:text-red-500 font-bold py-2 px-4 rounded-lg transition duration-300">Home</a>
+        <span class="text-slate-500 mx-2">|</span>
+        <a href="rules.html" class="text-lg text-amber-300 hover:text-red-500 font-bold py-2 px-4 rounded-lg transition duration-300">Rules</a>
+        <!-- You can add more links here -->
+    </nav>
+    <!-- END: Navigation Bar -->
+
+    <div class="text-center">
+        <h1 class="text-4xl md:text-6xl text-amber-300">The Grand Tournament</h1>
+        <p class="text-xl md:text-2xl mt-2 text-slate-300">A Monster Hunter's Guide to Glory</p>
+    </div>
+</header>
+
+    <main class="container mx-auto p-4 md:p-8">
+        
+        <section id="intro" class="text-center mb-12">
+            <h2 class="text-3xl mb-4 text-red-500">Welcome, Champions!</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-300">Within this guide lies the knowledge to carve your legend. You will face fearsome beasts in arenas designed to their advantage. You will choose your challenge, add perilous modifiers, and fight for points. Understand the data, master the formula, and victory shall be yours. Fortune favors the bold... and the well-prepared.</p>
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <div class="card rounded-lg p-6 text-center lg:col-span-1">
+                <h3 class="text-2xl text-green-400">Low Tier Threat</h3>
+                <p class="text-6xl font-bold my-4">50</p>
+                <p class="text-xl font-bold">Goblin</p>
+                <p class="text-sm text-slate-400">A numerous and cowardly foe, dangerous in large groups. A test of crowd control.</p>
+            </div>
+            <div class="card rounded-lg p-6 text-center lg:col-span-1">
+                <h3 class="text-2xl text-amber-400">Mid Tier Challenge</h3>
+                <p class="text-6xl font-bold my-4">1,800</p>
+                <p class="text-xl font-bold">Troll</p>
+                <p class="text-sm text-slate-400">Infamous for its regeneration. Requires specialized tactics to put down for good.</p>
+            </div>
+            <div class="card rounded-lg p-6 text-center lg:col-span-1 md:col-span-2">
+                <h3 class="text-2xl text-red-500">High Tier Apex</h3>
+                <p class="text-6xl font-bold my-4">18,000</p>
+                <p class="text-xl font-bold">Adult Red Dragon</p>
+                <p class="text-sm text-slate-400">The epitome of draconic might and fiery destruction. A battle for the ages.</p>
+            </div>
+        </div>
+
+        <section id="monsters" class="mb-12 card rounded-lg p-6">
+            <h2 class="text-3xl text-center mb-4 text-red-500">The Combatants: Points by Challenge</h2>
+            <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6">A monster's Point Value grows exponentially with its Challenge Rating (CR). Early gains are small, but the power of high-CR creatures skyrockets, offering immense rewards for those who can defeat them.</p>
+            <div class="chart-container">
+                <canvas id="monsterPointsChart"></canvas>
+            </div>
+        </section>
+
+        <section id="modifiers" class="mb-12 card rounded-lg p-6">
+            <h2 class="text-3xl text-center mb-4 text-red-500">The Gauntlet: Modifier Distribution</h2>
+            <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6">Modifiers increase the challenge for a greater point multiplier. Most offer a modest boost, but some legendary modifiers can dramatically alter the fight and the potential reward.</p>
+            <div class="chart-container">
+                <canvas id="modifierMultiplierChart"></canvas>
+            </div>
+        </section>
+        
+        <section id="formula" class="mb-12 card rounded-lg p-6">
+            <h2 class="text-3xl text-center mb-4 text-red-500">The Calculus of Courage</h2>
+            <p class="text-center max-w-2xl mx-auto text-slate-300 mb-8">Your final score is determined by this sacred formula. Each component is a choice, a risk, a path to glory or ruin.</p>
+            <!-- ** MODIFICATION START: Added Elite Bonus to the flowchart ** -->
+            <div class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 text-center flex-wrap">
+                <div class="flow-step rounded-lg p-4">(Base Score)</div>
+                <div class="flow-connector">&times;</div>
+                <div class="flow-step rounded-lg p-4">Difficulty Multiplier</div>
+                <div class="flow-connector">&times;</div>
+                <div class="flow-step rounded-lg p-4">Elite Bonus</div>
+                <div class="flow-connector">=</div>
+                <div class="flow-step rounded-lg p-4 bg-green-600 border-green-400">Total Points</div>
+            </div>
+            <!-- ** MODIFICATION END ** -->
+
+            <div class="my-12">
+                <h3 class="text-2xl text-center mb-4 text-amber-300">Encounter Multiplier</h3>
+                <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6 text-sm">The "Adjusted XP" used in the Difficulty Multiplier is increased based on the number of monsters, reflecting the increased challenge of coordinating against multiple foes.</p>
+                <div class="w-full max-w-3xl mx-auto bg-gray-900/50 rounded-lg overflow-hidden">
+                    <table class="w-full text-center text-sm">
+                        <thead class="text-xs text-amber-300 uppercase">
+                            <tr>
+                                <th class="px-4 py-2"># of Monsters</th>
+                                <th class="px-4 py-2">1</th>
+                                <th class="px-4 py-2">2</th>
+                                <th class="px-4 py-2">3-6</th>
+                                <th class="px-4 py-2">7-10</th>
+                                <th class="px-4 py-2">11-14</th>
+                                <th class="px-4 py-2">15+</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-slate-800/50">
+                            <tr>
+                                <td class="px-4 py-2 font-bold text-amber-300">XP Multiplier</td>
+                                <td class="px-4 py-2">x1</td>
+                                <td class="px-4 py-2">x1.5</td>
+                                <td class="px-4 py-2">x2</td>
+                                <td class="px-4 py-2">x2.5</td>
+                                <td class="px-4 py-2">x3</td>
+                                <td class="px-4 py-2">x4</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- ** MODIFICATION START: Added Elite Opponent Bonus explanation ** -->
+            <div class="my-12">
+                <h3 class="text-2xl text-center mb-4 text-amber-300">Elite Opponent Bonus</h3>
+                <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6 text-sm">To reward the valor required to face truly fearsome foes, a special bonus is applied based on the individual power of the monster. This ensures that defeating a single, mighty beast is as glorious as overcoming a horde.</p>
+                <div class="w-full max-w-3xl mx-auto bg-gray-900/50 rounded-lg overflow-hidden">
+                    <table class="w-full text-center text-sm">
+                        <thead class="text-xs text-amber-300 uppercase">
+                            <tr>
+                                <th class="px-4 py-2">Monster Point Value</th>
+                                <th class="px-4 py-2">Tier</th>
+                                <th class="px-4 py-2">Score Bonus</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-slate-800/50">
+                            <tr>
+                                <td class="px-4 py-2">1,800 - 4,999</td>
+                                <td class="px-4 py-2">Elite</td>
+                                <td class="px-4 py-2">x3</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">5,000 - 9,999</td>
+                                <td class="px-4 py-2">Champion</td>
+                                <td class="px-4 py-2">x4</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">10,000 - 19,999</td>
+                                <td class="px-4 py-2">Legendary</td>
+                                <td class="px-4 py-2">x5</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">20,000+</td>
+                                <td class="px-4 py-2">Mythic</td>
+                                <td class="px-4 py-2">x6</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- ** MODIFICATION END ** -->
+
+            <div id="calculator" class="mt-12">
+                <h3 class="text-2xl text-center mb-6 text-amber-300">Strategize Your Encounter</h3>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 rounded-lg bg-gray-900/50">
+                    
+                    <div class="lg:col-span-1 flex flex-col gap-6">
+                        <div>
+                            <label for="monsterSelect" class="block mb-2 text-sm font-medium text-slate-300">Choose a Monster:</label>
+                            <input type="text" id="calcMonsterSearch" placeholder="Search for a monster..." class="w-full p-2 mb-2 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                            <select id="monsterSelect" size="5" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5"></select>
+                        </div>
+                        <div>
+                            <label for="monsterCount" class="block mb-2 text-sm font-medium text-slate-300">Number of Monsters:</label>
+                            <input type="number" id="monsterCount" value="1" min="1" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="playerCount" class="block mb-2 text-sm font-medium text-slate-300"># of Players:</label>
+                                <input type="number" id="playerCount" value="4" min="1" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5">
+                            </div>
+                             <div>
+                                <label for="playerLevel" class="block mb-2 text-sm font-medium text-slate-300">Avg. Level:</label>
+                                <input type="number" id="playerLevel" value="5" min="1" max="20" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-sm font-medium text-slate-300">Choose Modifiers:</label>
+                            <button id="unselectAllBtn" class="text-xs text-amber-400 hover:text-amber-200">Unselect All</button>
+                        </div>
+                        <div class="relative mb-2">
+                            <input type="text" id="calcModifierSearch" placeholder="Search for a modifier..." class="w-full p-2 pl-4 pr-40 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <input id="searchInDescription" type="checkbox" class="h-4 w-4 rounded border-gray-500 text-amber-400 focus:ring-amber-500">
+                                <label for="searchInDescription" class="ml-2 text-xs text-slate-400">Also search in description</label>
+                            </div>
+                        </div>
+                        <div id="modifierContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 p-4 bg-gray-800/50 rounded-lg max-h-60 overflow-y-auto">
+                            <!-- Modifier checkboxes will be inserted here by JavaScript -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mt-6 p-6 bg-gray-900 rounded-lg text-center">
+                    <h4 class="text-lg text-slate-400">Potential Score</h4>
+                    <p id="totalPointsResult" class="text-5xl font-bold text-green-400">0</p>
+                    <div id="calculation-breakdown" class="mt-4 text-left text-sm text-slate-400 max-w-4xl mx-auto hidden">
+                        <!-- Calculation details will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="strategy" class="mb-12 card rounded-lg p-6">
+            <h2 class="text-3xl text-center mb-4 text-red-500">Strategic Insights: The Power of Punching Up</h2>
+            <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6">The greatest rewards are reserved for those who dare to challenge foes far beyond their station. The Difficulty Multiplier heavily favors lower-level parties taking on high-CR monsters. As shown below, a Level 5 party earns a vastly greater score for defeating a Young Red Dragon than a Level 17 party, even though the Base Score is identical.</p>
+            <div class="chart-container">
+                <canvas id="strategyChart"></canvas>
+            </div>
+        </section>
+
+        <section id="monster-reference" class="mb-12 card rounded-lg p-6">
+            <h2 class="text-3xl text-center mb-4 text-red-500">Monster Reference</h2>
+            <input type="text" id="monsterSearch" placeholder="Search for a monster..." class="w-full p-2 mb-4 bg-gray-700 border border-gray-600 rounded-lg text-white">
+            <div class="overflow-x-auto max-h-96">
+                <table class="w-full text-sm text-left text-gray-300">
+                    <thead class="text-xs text-amber-300 uppercase bg-gray-900/50 sticky top-0">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Monster</th>
+                            <th scope="col" class="px-6 py-3">CR</th>
+                            <th scope="col" class="px-6 py-3">Point Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monsterTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="modifier-reference" class="mb-12 card rounded-lg p-6">
+            <h2 class="text-3xl text-center mb-4 text-red-500">Modifier Reference</h2>
+            <input type="text" id="modifierSearch" placeholder="Search for a modifier..." class="w-full p-2 mb-4 bg-gray-700 border border-gray-600 rounded-lg text-white">
+            <div class="overflow-x-auto max-h-96">
+                <table class="w-full text-sm text-left text-gray-300">
+                    <thead class="text-xs text-amber-300 uppercase bg-gray-900/50 sticky top-0">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Modifier</th>
+                            <th scope="col" class="px-6 py-3">Multiplier</th>
+                            <th scope="col" class="px-6 py-3">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modifierTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="text-center p-4 bg-gray-900/50">
+        <p class="text-slate-400">May your blades be sharp and your spells true. Good luck, champions.</p>
+    </footer>
+
+    <div id="global-tooltip" class="hidden opacity-0 p-2 text-sm bg-slate-800 text-white rounded-md shadow-lg max-w-xs"></div>
+
+<script src="monsterdata.js"></script> 
+<script src="modifierdata.js"></script> 
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+
+    
+
+    const xpThresholdsByLevel = { 1: { easy: 25, medium: 50, hard: 75, deadly: 100 }, 2: { easy: 50, medium: 100, hard: 150, deadly: 200 }, 3: { easy: 75, medium: 150, hard: 225, deadly: 400 }, 4: { easy: 125, medium: 250, hard: 375, deadly: 500 }, 5: { easy: 250, medium: 500, hard: 750, deadly: 1100 }, 6: { easy: 300, medium: 600, hard: 900, deadly: 1400 }, 7: { easy: 350, medium: 750, hard: 1100, deadly: 1700 }, 8: { easy: 450, medium: 900, hard: 1400, deadly: 2100 }, 9: { easy: 550, medium: 1100, hard: 1600, deadly: 2400 }, 10: { easy: 600, medium: 1200, hard: 1900, deadly: 2800 }, 11: { easy: 800, medium: 1600, hard: 2400, deadly: 3600 }, 12: { easy: 1000, medium: 2000, hard: 3000, deadly: 4500 }, 13: { easy: 1100, medium: 2200, hard: 3400, deadly: 5100 }, 14: { easy: 1250, medium: 2500, hard: 3800, deadly: 5700 }, 15: { easy: 1400, medium: 2800, hard: 4300, deadly: 6400 }, 16: { easy: 1600, medium: 3200, hard: 4800, deadly: 7200 }, 17: { easy: 2000, medium: 3900, hard: 5900, deadly: 8800 }, 18: { easy: 2100, medium: 4200, hard: 6300, deadly: 9500 }, 19: { easy: 2400, medium: 4900, hard: 7300, deadly: 10900 }, 20: { easy: 2800, medium: 5700, hard: 8500, deadly: 12700 } };
+
+    const crToNumeric = (cr) => {
+        if (cr.includes('/')) {
+            const parts = cr.split('/');
+            return parseFloat(parts[0]) / parseFloat(parts[1]);
+        }
+        return parseFloat(cr);
+    };
+
+    function getEncounterMultiplier(numMonsters) {
+        if (numMonsters <= 1) return 1;
+        if (numMonsters === 2) return 1.5;
+        if (numMonsters >= 3 && numMonsters <= 6) return 2;
+        if (numMonsters >= 7 && numMonsters <= 10) return 2.5;
+        if (numMonsters >= 11 && numMonsters <= 14) return 3;
+        return 4; // 15 or more monsters
+    }
+
+    // ** MODIFICATION START: Added function for Elite Opponent Bonus **
+    function getEliteOpponentBonus(monsterPoints) {
+        if (monsterPoints >= 20000) return 6.0;
+        if (monsterPoints >= 10000) return 5.0;
+        if (monsterPoints >= 5000) return 4.0;
+        if (monsterPoints >= 1800) return 3.0;
+        return 1.0; // No bonus for weaker monsters
+    }
+    // ** MODIFICATION END **
+    
+    const tooltipCallback = {
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    title: function(tooltipItems) {
+                        const item = tooltipItems[0];
+                        let label = item.chart.data.labels[item.dataIndex];
+                        return Array.isArray(label) ? label.join(' ') : label;
+                    }
+                }
+            },
+            legend: {
+                labels: {
+                    color: '#ECF0F1'
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { color: '#ECF0F1' },
+                grid: { color: 'rgba(236, 240, 241, 0.1)' }
+            },
+            x: {
+                ticks: { color: '#ECF0F1' },
+                grid: { color: 'rgba(236, 240, 241, 0.1)' }
+            }
+        },
+        maintainAspectRatio: false
+    };
+
+    const wrapLabel = (label, maxLength = 16) => {
+        if (label.length <= maxLength) return label;
+        const words = label.split(' ');
+        const lines = [];
+        let currentLine = '';
+        for (const word of words) {
+            if ((currentLine + word).length > maxLength) {
+                lines.push(currentLine.trim());
+                currentLine = '';
+            }
+            currentLine += word + ' ';
+        }
+        lines.push(currentLine.trim());
+        return lines;
+    };
+    
+    new Chart(document.getElementById('monsterPointsChart'), {
+        type: 'line',
+        data: {
+            labels: monsterData.map(m => `CR ${m.cr}`),
+            datasets: [{
+                label: 'Point Value',
+                data: monsterData.map(m => m.points),
+                borderColor: '#F1C40F',
+                backgroundColor: 'rgba(241, 196, 15, 0.2)',
+                tension: 0.1,
+                fill: true
+            }]
+        },
+        options: { ...tooltipCallback, scales: { ...tooltipCallback.scales, y: { ...tooltipCallback.scales.y, type: 'logarithmic' } } }
+    });
+
+    const modifierBins = modifierData.reduce((acc, mod) => {
+        const bin = Math.floor(mod.multiplier * 2) / 2;
+        const label = `${bin.toFixed(1)}-${(bin + 0.5).toFixed(1)}`;
+        if (!acc[label]) {
+            acc[label] = 0;
+        }
+        acc[label]++;
+        return acc;
+    }, {});
+
+    new Chart(document.getElementById('modifierMultiplierChart'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(modifierBins),
+            datasets: [{
+                label: 'Number of Modifiers',
+                data: Object.values(modifierBins),
+                backgroundColor: '#2ECC71',
+                borderColor: '#27AE60',
+                borderWidth: 1
+            }]
+        },
+        options: tooltipCallback
+    });
+
+    new Chart(document.getElementById('strategyChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Level 5 Party', 'Level 17 Party'],
+            datasets: [
+                {
+                    label: 'Base Score',
+                    data: [5900, 5900],
+                    backgroundColor: '#3498DB',
+                },
+                {
+                    label: 'Final Score',
+                    data: [25665, 6726], // Updated with Elite Bonus
+                    backgroundColor: '#2ECC71',
+                }
+            ]
+        },
+        options: tooltipCallback
+    });
+
+    const monsterTableBody = document.getElementById('monsterTableBody');
+    const monsterSearch = document.getElementById('monsterSearch');
+    const modifierTableBody = document.getElementById('modifierTableBody');
+    const modifierSearch = document.getElementById('modifierSearch');
+
+    function populateTable(tableBody, data, renderFn) {
+        tableBody.innerHTML = '';
+        data.forEach(item => {
+            tableBody.appendChild(renderFn(item));
+        });
+    }
+
+    function renderMonsterRow(monster) {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-700 hover:bg-gray-800/50';
+        row.innerHTML = `<td class="px-6 py-4">${monster.name}</td><td class="px-6 py-4">${monster.cr}</td><td class="px-6 py-4">${monster.points.toLocaleString()}</td>`;
+        return row;
+    }
+
+    function renderModifierRow(modifier) {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-700 hover:bg-gray-800/50';
+        row.innerHTML = `<td class="px-6 py-4">${modifier.name}</td><td class="px-6 py-4">x${modifier.multiplier}</td><td class="px-6 py-4">${modifier.description}</td>`;
+        return row;
+    }
+
+    populateTable(monsterTableBody, monsterData, renderMonsterRow);
+    populateTable(modifierTableBody, modifierData, renderModifierRow);
+    
+    monsterSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const filteredData = monsterData.filter(m => m.name.toLowerCase().includes(searchTerm));
+        populateTable(monsterTableBody, filteredData, renderMonsterRow);
+    });
+
+    modifierSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const filteredData = modifierData.filter(m => m.name.toLowerCase().includes(searchTerm) || m.description.toLowerCase().includes(searchTerm));
+        populateTable(modifierTableBody, filteredData, renderModifierRow);
+    });
+
+    const monsterSelect = document.getElementById('monsterSelect');
+    const modifierContainer = document.getElementById('modifierContainer');
+    const monsterCount = document.getElementById('monsterCount');
+    const playerCount = document.getElementById('playerCount');
+    const playerLevel = document.getElementById('playerLevel');
+    const totalPointsResult = document.getElementById('totalPointsResult');
+    const globalTooltip = document.getElementById('global-tooltip');
+    const calcModifierSearch = document.getElementById('calcModifierSearch');
+    const searchInDescription = document.getElementById('searchInDescription');
+    const calcMonsterSearch = document.getElementById('calcMonsterSearch');
+    const breakdownContainer = document.getElementById('calculation-breakdown');
+    const unselectAllBtn = document.getElementById('unselectAllBtn');
+
+    monsterData.forEach((monster, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${monster.name} (${monster.points} pts)`;
+        monsterSelect.appendChild(option);
+    });
+
+    modifierData.forEach((modifier, index) => {
+        const id = `modifier-${index}`;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flex items-center modifier-item';
+        wrapper.dataset.description = modifier.description;
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = id;
+        checkbox.dataset.multiplier = modifier.multiplier;
+        checkbox.className = 'modifier-checkbox w-4 h-4 text-amber-400 bg-gray-700 border-gray-600 rounded focus:ring-amber-500 focus:ring-2';
+        checkbox.addEventListener('change', calculateScore);
+
+        const label = document.createElement('label');
+        label.htmlFor = id;
+        label.className = 'ml-2 text-sm font-medium text-slate-300 cursor-pointer';
+        label.textContent = `${modifier.name} (x${modifier.multiplier})`;
+
+        wrapper.appendChild(checkbox);
+        wrapper.appendChild(label);
+        modifierContainer.appendChild(wrapper);
+    });
+
+    unselectAllBtn.addEventListener('click', () => {
+        const checkedModifiers = document.querySelectorAll('#modifierContainer input:checked');
+        checkedModifiers.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        calculateScore();
+    });
+
+    modifierContainer.addEventListener('mouseover', (e) => {
+        const target = e.target.closest('.modifier-item');
+        if (target) {
+            globalTooltip.textContent = target.dataset.description;
+            globalTooltip.classList.remove('hidden', 'opacity-0');
+        }
+    });
+
+    modifierContainer.addEventListener('mousemove', (e) => {
+        globalTooltip.style.left = `${e.clientX + 15}px`;
+        globalTooltip.style.top = `${e.clientY + 15}px`;
+    });
+
+    modifierContainer.addEventListener('mouseleave', () => {
+        globalTooltip.classList.add('hidden', 'opacity-0');
+    });
+
+    function filterModifiers() {
+        const searchTerm = calcModifierSearch.value.toLowerCase();
+        const searchDesc = searchInDescription.checked;
+        const modifiers = modifierContainer.querySelectorAll('.modifier-item');
+
+        modifiers.forEach(modWrapper => {
+            const label = modWrapper.querySelector('label').textContent.toLowerCase();
+            const description = modWrapper.dataset.description.toLowerCase();
+            
+            const nameMatch = label.includes(searchTerm);
+            const descMatch = searchDesc && description.includes(searchTerm);
+
+            if (nameMatch || descMatch) {
+                modWrapper.style.display = 'flex';
+            } else {
+                modWrapper.style.display = 'none';
+            }
+        });
+    }
+
+    calcModifierSearch.addEventListener('input', filterModifiers);
+    searchInDescription.addEventListener('change', filterModifiers);
+
+    function filterMonsters() {
+        const searchTerm = calcMonsterSearch.value.toLowerCase();
+        const options = monsterSelect.options;
+
+        for (let i = 0; i < options.length; i++) {
+            const option = options[i];
+            const optionText = option.textContent.toLowerCase();
+            if (optionText.includes(searchTerm)) {
+                option.style.display = '';
+            } else {
+                option.style.display = 'none';
+            }
+        }
+    }
+
+    calcMonsterSearch.addEventListener('input', filterMonsters);
+
+
+    function calculateScore() {
+        if (!monsterSelect.value) {
+            breakdownContainer.classList.add('hidden');
+            return;
+        }
+        
+        const selectedMonster = monsterData[monsterSelect.value];
+        const checkedModifiers = document.querySelectorAll('#modifierContainer input:checked');
+
+        let modifierBonusSum = 0;
+        let modifierDetails = [];
+        if (checkedModifiers.length > 0) {
+            checkedModifiers.forEach(checkbox => {
+                const multiplier = parseFloat(checkbox.dataset.multiplier);
+                modifierBonusSum += (multiplier - 1.0);
+                const modName = checkbox.nextElementSibling.textContent;
+                modifierDetails.push(`<li>${modName}</li>`);
+            });
+        }
+        const totalCustomMultiplier = 1.0 + modifierBonusSum;
+        
+        const numMonsters = parseInt(monsterCount.value) || 1;
+        const numPlayers = parseInt(playerCount.value) || 1;
+        const level = parseInt(playerLevel.value) || 1;
+
+        if (!selectedMonster || numMonsters < 1 || numPlayers < 1 || level < 1 || level > 20) {
+            totalPointsResult.textContent = 'Invalid Input';
+            breakdownContainer.classList.add('hidden');
+            return;
+        }
+        
+        const baseScore = selectedMonster.points * numMonsters * totalCustomMultiplier;
+        
+        // ** MODIFICATION START: Reverted to original logic and added Elite Bonus **
+        const encounterXpMultiplier = getEncounterMultiplier(numMonsters);
+        const adjustedXp = selectedMonster.points * numMonsters * encounterXpMultiplier;
+        const partyMediumThreshold = xpThresholdsByLevel[level].medium * numPlayers;
+        const difficultyMultiplier = adjustedXp / (partyMediumThreshold > 0 ? partyMediumThreshold : 1);
+        
+        const eliteOpponentBonus = getEliteOpponentBonus(selectedMonster.points);
+
+        const totalPoints = baseScore * difficultyMultiplier * eliteOpponentBonus;
+        // ** MODIFICATION END **
+        
+        totalPointsResult.textContent = Math.round(totalPoints).toLocaleString();
+
+        // ** MODIFICATION START: Updated breakdown display **
+        let breakdownHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 border-b border-slate-700 pb-4">
+                <div>
+                    <p class="font-bold text-amber-300">Base Score Calculation:</p>
+                    <p class="font-mono text-xs">${selectedMonster.points.toLocaleString()} (pts) &times; ${numMonsters} (#) &times; ${totalCustomMultiplier.toFixed(2)} (mods) = ${Math.round(baseScore).toLocaleString()}</p>
+                </div>
+                <div>
+                    <p class="font-bold text-amber-300">Difficulty Multiplier Calculation:</p>
+                    <p class="font-mono text-xs ml-4">Adj. XP: (${selectedMonster.points.toLocaleString()} &times; ${numMonsters}) &times; ${encounterXpMultiplier} = ${adjustedXp.toLocaleString()}</p>
+                    <p class="font-mono text-xs ml-4">Multiplier: ${adjustedXp.toLocaleString()} / ${partyMediumThreshold.toLocaleString()} (Party Power) = ${difficultyMultiplier.toFixed(2)}x</p>
+                </div>
+            </div>
+        `;
+        
+        if(modifierDetails.length > 0) {
+            breakdownHTML += `<div class="mt-4"><p class="font-bold text-amber-300">Applied Modifiers:</p><ul class="list-disc list-inside text-xs mt-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4">${modifierDetails.join('')}</ul></div>`;
+        }
+        
+        breakdownHTML += `
+            <div class="mt-4 pt-4 border-t border-slate-700">
+                <p class="font-bold text-amber-300 text-center">Final Score Calculation:</p>
+                <p class="font-mono text-center text-xs">${Math.round(baseScore).toLocaleString()} (Base) &times; ${difficultyMultiplier.toFixed(2)}x (Difficulty) &times; ${eliteOpponentBonus.toFixed(1)}x (Elite) = ${Math.round(totalPoints).toLocaleString()}</p>
+            </div>
+        `;
+        // ** MODIFICATION END **
+
+        breakdownContainer.innerHTML = breakdownHTML;
+        breakdownContainer.classList.remove('hidden');
+    }
+
+    monsterSelect.addEventListener('change', calculateScore);
+    monsterCount.addEventListener('input', calculateScore);
+    playerCount.addEventListener('input', calculateScore);
+    playerLevel.addEventListener('input', calculateScore);
+
+    // Set initial default selection to show a calculation on page load
+    if (monsterSelect.options.length > 0) {
+        let defaultIndex = Array.from(monsterSelect.options).findIndex(opt => opt.text.includes("Young Black Dragon"));
+        if (defaultIndex === -1) defaultIndex = 0; // fallback to the first monster
+        monsterSelect.value = defaultIndex;
+    }
+    calculateScore();
+});
+</script>
+</body>
+</html>
