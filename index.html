@@ -149,7 +149,6 @@
         <section id="formula" class="mb-12 card rounded-lg p-6">
             <h2 class="text-3xl text-center mb-4 text-red-500">The Calculus of Courage</h2>
             <p class="text-center max-w-2xl mx-auto text-slate-300 mb-8">Your final score is determined by this sacred formula. Each component is a choice, a risk, a path to glory or ruin.</p>
-            <!-- ** MODIFICATION START: Added Elite Bonus to the flowchart ** -->
             <div class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 text-center flex-wrap">
                 <div class="flow-step rounded-lg p-4">(Base Score)</div>
                 <div class="flow-connector">&times;</div>
@@ -159,7 +158,6 @@
                 <div class="flow-connector">=</div>
                 <div class="flow-step rounded-lg p-4 bg-green-600 border-green-400">Total Points</div>
             </div>
-            <!-- ** MODIFICATION END ** -->
 
             <div class="my-12">
                 <h3 class="text-2xl text-center mb-4 text-amber-300">Encounter Multiplier</h3>
@@ -192,7 +190,6 @@
                 </div>
             </div>
             
-            <!-- ** MODIFICATION START: Added Elite Opponent Bonus explanation ** -->
             <div class="my-12">
                 <h3 class="text-2xl text-center mb-4 text-amber-300">Elite Opponent Bonus</h3>
                 <p class="text-center max-w-2xl mx-auto text-slate-300 mb-6 text-sm">To reward the valor required to face truly fearsome foes, a special bonus is applied based on the individual power of the monster. This ensures that defeating a single, mighty beast is as glorious as overcoming a horde.</p>
@@ -230,7 +227,6 @@
                     </table>
                 </div>
             </div>
-            <!-- ** MODIFICATION END ** -->
 
             <div id="calculator" class="mt-12">
                 <h3 class="text-2xl text-center mb-6 text-amber-300">Strategize Your Encounter</h3>
@@ -864,7 +860,6 @@ const monsterData = [
         return 4; // 15 or more monsters
     }
 
-    // ** MODIFICATION START: Added function for Elite Opponent Bonus **
     function getEliteOpponentBonus(monsterPoints) {
         if (monsterPoints >= 20000) return 6.0;
         if (monsterPoints >= 10000) return 5.0;
@@ -872,7 +867,6 @@ const monsterData = [
         if (monsterPoints >= 1800) return 3.0;
         return 1.0; // No bonus for weaker monsters
     }
-    // ** MODIFICATION END **
     
     const tooltipCallback = {
         plugins: {
@@ -962,6 +956,7 @@ const monsterData = [
         options: tooltipCallback
     });
 
+    // ** MODIFICATION START: Updated chart data to reflect correct calculations **
     new Chart(document.getElementById('strategyChart'), {
         type: 'bar',
         data: {
@@ -974,13 +969,14 @@ const monsterData = [
                 },
                 {
                     label: 'Final Score',
-                    data: [25665, 6726], // Updated with Elite Bonus
+                    data: [69620, 8926], // Corrected values
                     backgroundColor: '#2ECC71',
                 }
             ]
         },
         options: tooltipCallback
     });
+    // ** MODIFICATION END **
 
     const monsterTableBody = document.getElementById('monsterTableBody');
     const monsterSearch = document.getElementById('monsterSearch');
@@ -1165,7 +1161,6 @@ const monsterData = [
         
         const baseScore = selectedMonster.points * numMonsters * totalCustomMultiplier;
         
-        // ** MODIFICATION START: Reverted to original logic and added Elite Bonus **
         const encounterXpMultiplier = getEncounterMultiplier(numMonsters);
         const adjustedXp = selectedMonster.points * numMonsters * encounterXpMultiplier;
         const partyMediumThreshold = xpThresholdsByLevel[level].medium * numPlayers;
@@ -1174,11 +1169,9 @@ const monsterData = [
         const eliteOpponentBonus = getEliteOpponentBonus(selectedMonster.points);
 
         const totalPoints = baseScore * difficultyMultiplier * eliteOpponentBonus;
-        // ** MODIFICATION END **
         
         totalPointsResult.textContent = Math.round(totalPoints).toLocaleString();
 
-        // ** MODIFICATION START: Updated breakdown display **
         let breakdownHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 border-b border-slate-700 pb-4">
                 <div>
@@ -1203,7 +1196,6 @@ const monsterData = [
                 <p class="font-mono text-center text-xs">${Math.round(baseScore).toLocaleString()} (Base) &times; ${difficultyMultiplier.toFixed(2)}x (Difficulty) &times; ${eliteOpponentBonus.toFixed(1)}x (Elite) = ${Math.round(totalPoints).toLocaleString()}</p>
             </div>
         `;
-        // ** MODIFICATION END **
 
         breakdownContainer.innerHTML = breakdownHTML;
         breakdownContainer.classList.remove('hidden');
@@ -1216,7 +1208,7 @@ const monsterData = [
 
     // Set initial default selection to show a calculation on page load
     if (monsterSelect.options.length > 0) {
-        let defaultIndex = Array.from(monsterSelect.options).findIndex(opt => opt.text.includes("Young Black Dragon"));
+        let defaultIndex = Array.from(monsterSelect.options).findIndex(opt => opt.text.includes("Young Red Dragon"));
         if (defaultIndex === -1) defaultIndex = 0; // fallback to the first monster
         monsterSelect.value = defaultIndex;
     }
