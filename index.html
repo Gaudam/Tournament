@@ -636,9 +636,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     calcMonsterSearch.addEventListener('input', filterMonsters);
+    function saveState() {
+            const state = {
+                monsterSelect: monsterSelect.value,
+                monsterCount: monsterCount.value,
+                playerCount: playerCount.value,
+                playerLevel: playerLevel.value,
+                modifiers: Array.from(document.querySelectorAll('#modifierContainer input:checked')).map(cb => cb.id)
+            };
+            localStorage.setItem('tournamentCalculatorState', JSON.stringify(state));
+        }
 
+        function loadState() {
+            const saved = localStorage.getItem('tournamentCalculatorState');
+            if (saved) {
+                try {
+                    const state = JSON.parse(saved);
+                    if (state.monsterSelect !== undefined) monsterSelect.value = state.monsterSelect;
+                    if (state.monsterCount !== undefined) monsterCount.value = state.monsterCount;
+                    if (state.playerCount !== undefined) playerCount.value = state.playerCount;
+                    if (state.playerLevel !== undefined) playerLevel.value = state.playerLevel;
+                    if (state.modifiers && Array.isArray(state.modifiers)) {
+                        state.modifiers.forEach(id => {
+                            const cb = document.getElementById(id);
+                            if (cb) cb.checked = true;
+                        });
+                    }
+                } catch (e) {
+                    console.error("Failed to parse saved state", e);
+                }
+            }
+        }
 
     function calculateScore() {
+            saveState();
         if (!monsterSelect.value) {
             breakdownContainer.classList.add('hidden');
             return;
