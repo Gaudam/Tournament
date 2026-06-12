@@ -654,7 +654,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const multiplier = parseFloat(checkbox.dataset.multiplier);
                 modifierBonusSum += (multiplier - 1.0);
                 const modName = checkbox.nextElementSibling.textContent;
-                modifierDetails.push(`<li>${modName}</li>`);
+               const modDesc = checkbox.closest('.modifier-item').dataset.description;
+                modifierDetails.push(`<li><strong class="text-slate-300">${modName}</strong>: <span class="text-slate-400">${modDesc}</span></li>`);
             });
         }
         const totalCustomMultiplier = 1.0 + modifierBonusSum;
@@ -700,7 +701,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         
         if(modifierDetails.length > 0) {
-            breakdownHTML += `<div class="mt-4"><p class="font-bold text-amber-300">Applied Modifiers:</p><ul class="list-disc list-inside text-xs mt-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4">${modifierDetails.join('')}</ul></div>`;
+             breakdownHTML += `<div class="mt-4"><p class="font-bold text-amber-300">Applied Modifiers:</p><ul class="list-disc list-inside text-xs mt-2 flex flex-col gap-2">${modifierDetails.join('')}</ul></div>`;
         }
         
         breakdownHTML += `
