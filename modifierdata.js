@@ -1,4 +1,3 @@
-const modifierData = [
   const modifierData = [
     { name: "Thick-Skinned", multiplier: 1.1, description: "Monsters have +1 AC." },
     { name: "Vicious", multiplier: 1.1, description: "Monsters deal 1 extra point of damage on all attacks." },
